@@ -29,7 +29,8 @@ class MainViewController: UIViewController {
         let tableView = UITableView(frame: .zero)
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CellId")
+        tableView.separatorStyle = .none
+        tableView.register(MovieCell.self, forCellReuseIdentifier: "CellId")
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
@@ -92,8 +93,11 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CellId", for: indexPath)
-        cell.textLabel?.text = movies[indexPath.row]
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CellId", for: indexPath) as? MovieCell else {
+            return UITableViewCell()
+        }
+
+//        cell.textLabel?.text = movies[indexPath.row]
 
         return cell
     }
