@@ -1,5 +1,5 @@
 //
-//  MainViewController.swift
+//  MoviesListViewController.swift
 //  movies-collection
 //
 //  Created by Elias Myronidis on 6/5/23.
@@ -7,12 +7,13 @@
 
 import UIKit
 
-class MainViewController: UIViewController {
+class MoviesListViewController: UIViewController {
 
     // MARK: - Variables
 
     private var searchTask: Task<Void, Error>?
     private var movies = ["Hello", "Goodnight", "Thessaloniki", "Titanic", "Programmer"]
+    private var viewModel = MoviesListVM()
 
     // MARK: - Views
 
@@ -44,6 +45,7 @@ class MainViewController: UIViewController {
 
         setupNavigationBar()
         setupTableView()
+        fetchPopularMovies()
     }
 
     // MARK: - Setup UI
@@ -64,11 +66,17 @@ class MainViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
+
+    // MARK: - Helper methods
+
+    private func fetchPopularMovies() {
+        viewModel.fetchPopularMovies()
+    }
 }
 
 // MARK: - UISearchResultsUpdating
 
-extension MainViewController: UISearchResultsUpdating {
+extension MoviesListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let text = searchController.searchBar.text ?? ""
 
@@ -87,7 +95,7 @@ extension MainViewController: UISearchResultsUpdating {
 
 // MARK: - UITableViewDataSource, UITableViewDelegate
 
-extension MainViewController: UITableViewDataSource, UITableViewDelegate {
+extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         movies.count
     }
