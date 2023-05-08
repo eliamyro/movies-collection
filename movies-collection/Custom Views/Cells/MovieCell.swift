@@ -34,9 +34,42 @@ class MovieCell: UITableViewCell {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Movie title"
+        label.textColor = .label
+        label.font = .systemFont(ofSize: 18)
         label.numberOfLines = 2
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.90
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        return label
+    }()
+
+    private lazy var releaseDateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "24 March 2023"
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 14)
+        label.numberOfLines = 1
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        return label
+    }()
+
+    private lazy var voteAverageLabel: UILabel = {
+        let label = UILabel()
+        label.text = "7.53"
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        return label
+    }()
+
+    private lazy var voteCountLabel: UILabel = {
+        let label = UILabel()
+        label.text = "From 2500 users sdfasdf"
+        label.textColor = .secondaryLabel
+        label.font = .systemFont(ofSize: 14, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
 
         return label
@@ -60,6 +93,9 @@ class MovieCell: UITableViewCell {
         configureContainerView()
         configureMovieImage()
         configureTitleLabel()
+        configureReleaseDateLabel()
+        configureVoteAverageLabel()
+        configureVoteCountLabel()
     }
 
     private func configureContainerView() {
@@ -96,6 +132,36 @@ class MovieCell: UITableViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: movieImage.trailingAnchor, constant: 8),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
             titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -8)
+        ])
+    }
+
+    private func configureReleaseDateLabel() {
+        containerView.addSubview(releaseDateLabel)
+
+        NSLayoutConstraint.activate([
+            releaseDateLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+            releaseDateLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            releaseDateLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
+        ])
+    }
+
+    private func configureVoteAverageLabel() {
+        containerView.addSubview(voteAverageLabel)
+
+        NSLayoutConstraint.activate([
+            voteAverageLabel.topAnchor.constraint(greaterThanOrEqualTo: titleLabel.bottomAnchor, constant: 4),
+            voteAverageLabel.leadingAnchor.constraint(equalTo: movieImage.trailingAnchor, constant: 4),
+            voteAverageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4)
+        ])
+    }
+
+    private func configureVoteCountLabel() {
+        containerView.addSubview(voteCountLabel)
+
+        NSLayoutConstraint.activate([
+            voteCountLabel.leadingAnchor.constraint(equalTo: voteAverageLabel.trailingAnchor, constant: 8),
+            voteCountLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4),
+            voteCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: containerView.trailingAnchor, constant: -4)
         ])
     }
 }
