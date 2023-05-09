@@ -8,14 +8,14 @@
 import Foundation
 
 protocol FetchPopularMoviesUC {
-    func execute()
+    func execute(page: Int, completed: @escaping (Result<APIMoviesResponse, RequestError>) -> Void)
 }
 
 class FetchPopularMoviesUCImp: FetchPopularMoviesUC {
     let repo = MoviesRepoImp()
 
-    func execute() {
+    func execute(page: Int, completed: @escaping (Result<APIMoviesResponse, RequestError>) -> Void) {
         print("FetchPopularMoviesUCImp")
-        repo.fetchPopularMovies()
+        repo.fetchPopularMovies(page: page, completed: completed)
     }
 }

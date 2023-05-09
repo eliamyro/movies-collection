@@ -8,11 +8,11 @@
 import Foundation
 
 protocol HTTPClient {
-    func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type)
+    func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type, completed: @escaping (Result<T, RequestError>) -> Void)
 }
 
 class HTTPClientImp: HTTPClient {
-    func sendRequest<T>(endpoint: Endpoint, responseType: T.Type) where T: Decodable {
+    func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type, completed: @escaping (Result<T, RequestError>) -> Void) {
         var urlComponents = URLComponents()
         urlComponents.scheme = endpoint.scheme
         urlComponents.host = endpoint.host
@@ -21,7 +21,7 @@ class HTTPClientImp: HTTPClient {
 
         guard let url = urlComponents.url else {
             print("Failed to get url from urlComponents")
-            return
+            return completed(.failure(.invalidURL))
         }
 
         print("URL: \(url)")
@@ -30,30 +30,28 @@ class HTTPClientImp: HTTPClient {
         request.httpMethod = endpoint.method.rawValue
         request.allHTTPHeaderFields = endpoint.header // Try also without it
 
-        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                print("Error: \(error)")
+                completed(.failure(.unableToComplete(error: error)))
                 return
             }
 
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("Invalid HTTP response")
+            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+                completed(.failure(.invalidResponse))
                 return
             }
 
-            guard let data = data else { return }
+            guard let data = data else {
+                completed(.failure(.invalidData))
+                return
+            }
 
             do {
                 let decoder = JSONDecoder()
-                let response = try decoder.decode(APIMoviesResponse.self, from: data)
-
-                if let movies = response.results {
-                    for movie in movies {
-                        print(movie.title ?? "")
-                    }
-                }
+                let response = try decoder.decode(T.self, from: data)
+                completed(.success(response))
             } catch {
-                print("Error: \(error)")
+                completed(.failure(.decodingError(error: error)))
             }
         }
 

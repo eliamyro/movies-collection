@@ -10,7 +10,6 @@ import UIKit
 class MovieCell: UITableViewCell {
 
     // MARK: - Views
-
     private lazy var containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .secondarySystemBackground
@@ -33,7 +32,6 @@ class MovieCell: UITableViewCell {
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Movie title"
         label.textColor = .label
         label.font = .systemFont(ofSize: 18)
         label.numberOfLines = 2
@@ -67,7 +65,7 @@ class MovieCell: UITableViewCell {
 
     private lazy var voteCountLabel: UILabel = {
         let label = UILabel()
-        label.text = "From 2500 users sdfasdf"
+        label.text = "From 2500 users"
         label.textColor = .secondaryLabel
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -87,9 +85,19 @@ class MovieCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Setup UI
-    
-    private func configureUI() {
+    // MARK: - Set data
+
+    func setup(movie: APIMovie) {
+        titleLabel.text = movie.title
+        releaseDateLabel.text = movie.releaseDate
+        voteAverageLabel.text = "Rate: \(movie.voteAverage ?? 0)"
+        voteCountLabel.text = "From \(movie.voteCount ?? 0) users"
+    }
+}
+
+// MARK: - Setup UI
+extension MovieCell {
+    func configureUI() {
         configureContainerView()
         configureMovieImage()
         configureTitleLabel()
@@ -98,7 +106,7 @@ class MovieCell: UITableViewCell {
         configureVoteCountLabel()
     }
 
-    private func configureContainerView() {
+    func configureContainerView() {
         addSubview(containerView)
 
         NSLayoutConstraint.activate([
@@ -109,7 +117,7 @@ class MovieCell: UITableViewCell {
         ])
     }
 
-    private func configureMovieImage() {
+    func configureMovieImage() {
         containerView.addSubview(movieImage)
 
         let heightConstraint = movieImage.heightAnchor.constraint(equalToConstant: 150)
@@ -124,7 +132,7 @@ class MovieCell: UITableViewCell {
         ])
     }
 
-    private func configureTitleLabel() {
+    func configureTitleLabel() {
         containerView.addSubview(titleLabel)
 
         NSLayoutConstraint.activate([
@@ -135,7 +143,7 @@ class MovieCell: UITableViewCell {
         ])
     }
 
-    private func configureReleaseDateLabel() {
+    func configureReleaseDateLabel() {
         containerView.addSubview(releaseDateLabel)
 
         NSLayoutConstraint.activate([
@@ -145,7 +153,7 @@ class MovieCell: UITableViewCell {
         ])
     }
 
-    private func configureVoteAverageLabel() {
+    func configureVoteAverageLabel() {
         containerView.addSubview(voteAverageLabel)
 
         NSLayoutConstraint.activate([
@@ -155,7 +163,7 @@ class MovieCell: UITableViewCell {
         ])
     }
 
-    private func configureVoteCountLabel() {
+    func configureVoteCountLabel() {
         containerView.addSubview(voteCountLabel)
 
         NSLayoutConstraint.activate([

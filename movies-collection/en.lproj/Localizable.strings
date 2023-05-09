@@ -1,0 +1,10 @@
+/* 
+  Localizable.strings
+  movies-collection
+
+  Created by Elias Myronidis on 9/5/23.
+  
+*/
+
+"movies_title" = "Movies Colletion";
+"type_something" = "Type something";

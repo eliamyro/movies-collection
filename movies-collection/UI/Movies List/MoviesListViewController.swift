@@ -12,10 +12,19 @@ class MoviesListViewController: UIViewController {
     // MARK: - Variables
 
     private var searchTask: Task<Void, Error>?
-    private var movies = ["Hello", "Goodnight", "Thessaloniki", "Titanic", "Programmer"]
-    private var viewModel = MoviesListVM()
+    
+    private var presenter = MoviesListPresenter()
 
     // MARK: - Views
+
+    lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.hidesWhenStopped = true
+        indicator.color = .systemBlue
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+
+        return indicator
+    }()
 
     private lazy var searchController: UISearchController = {
         let search = UISearchController(searchResultsController: nil)
@@ -31,7 +40,7 @@ class MoviesListViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.separatorStyle = .none
-        tableView.register(MovieCell.self, forCellReuseIdentifier: "CellId")
+        tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.id)
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
@@ -41,10 +50,11 @@ class MoviesListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        presenter.setViewDelegate(delegate: self)
 
         setupNavigationBar()
         setupTableView()
+        setupIndicatorView()
         fetchPopularMovies()
     }
 
@@ -52,7 +62,7 @@ class MoviesListViewController: UIViewController {
     
     private func setupNavigationBar() {
         view.backgroundColor = .systemBackground
-        navigationItem.title = "Movies Collection"
+        navigationItem.title = NSLocalizedString("movies_title", comment: "")
         navigationItem.searchController = searchController
     }
 
@@ -67,10 +77,21 @@ class MoviesListViewController: UIViewController {
         ])
     }
 
+    private func setupIndicatorView() {
+        view.addSubview(activityIndicator)
+
+        NSLayoutConstraint.activate([
+            activityIndicator.heightAnchor.constraint(equalToConstant: 100),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 100),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+
     // MARK: - Helper methods
 
     private func fetchPopularMovies() {
-        viewModel.fetchPopularMovies()
+        presenter.fetchPopularMovies()
     }
 }
 
@@ -93,20 +114,50 @@ extension MoviesListViewController: UISearchResultsUpdating {
     }
 }
 
+extension MoviesListViewController: MoviesListDelegate {
+    func showLoader() {
+        DispatchQueue.main.async {
+            self.activityIndicator.startAnimating()
+        }
+    }
+
+    func hideLoader() {
+        DispatchQueue.main.async {
+            self.activityIndicator.stopAnimating()
+        }
+    }
+
+    func updateMoviesList() {
+        tableView.reloadData()
+    }
+}
+
 // MARK: - UITableViewDataSource, UITableViewDelegate
 
 extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        movies.count
+        presenter.movies.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "CellId", for: indexPath) as? MovieCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: MovieCell.id, for: indexPath) as? MovieCell else {
             return UITableViewCell()
         }
 
-//        cell.textLabel?.text = movies[indexPath.row]
+        cell.setup(movie: presenter.movies[indexPath.row])
 
         return cell
+    }
+
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.height
+
+        if offsetY > (contentHeight - height) {
+            presenter.page += 1
+            presenter.fetchPopularMovies()
+            print("Page \(presenter.page)")
+        }
     }
 }
