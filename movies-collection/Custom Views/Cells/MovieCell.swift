@@ -21,8 +21,7 @@ class MovieCell: UITableViewCell {
     }()
 
     private lazy var movieImage: UIImageView = {
-        let image = UIImage(named: "titanic")
-        let imageView = UIImageView(image: image)
+        let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -88,6 +87,12 @@ class MovieCell: UITableViewCell {
     // MARK: - Set data
 
     func setup(movie: APIMovie) {
+        let repo = MoviesRepoImp()
+        repo.downloadImage(imageUrl: movie.backdropPath ?? "", completed: { [weak self] image in
+            DispatchQueue.main.async {
+                self?.movieImage.image = image
+            }
+        })
         titleLabel.text = movie.title
         releaseDateLabel.text = movie.releaseDate
         voteAverageLabel.text = "Rate: \(movie.voteAverage ?? 0)"
@@ -120,7 +125,7 @@ extension MovieCell {
     func configureMovieImage() {
         containerView.addSubview(movieImage)
 
-        let heightConstraint = movieImage.heightAnchor.constraint(equalToConstant: 150)
+        let heightConstraint = movieImage.heightAnchor.constraint(equalToConstant: 100)
         heightConstraint.priority = .defaultHigh
 
         NSLayoutConstraint.activate([
@@ -128,7 +133,7 @@ extension MovieCell {
             movieImage.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             movieImage.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             heightConstraint,
-            movieImage.widthAnchor.constraint(equalToConstant: 120)
+            movieImage.widthAnchor.constraint(equalToConstant: 80)
         ])
     }
 

@@ -21,6 +21,7 @@ struct APIMovie: Codable {
     var title: String?  // Movie title
     var name: String?   // Tv show name
     var posterPath: String?
+    var backdropPath: String?
     var releaseDate: String?
     var voteAverage: Double?
     var voteCount: Int?
@@ -29,6 +30,7 @@ struct APIMovie: Codable {
     enum CodingKeys: String, CodingKey {
         case id, title, name
         case posterPath = "poster_path"
+        case backdropPath = "backdrop_path"
         case releaseDate = "release_date"
         case voteAverage = "vote_average"
         case voteCount = "vote_count"

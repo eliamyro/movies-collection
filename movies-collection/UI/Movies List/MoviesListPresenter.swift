@@ -27,14 +27,16 @@ class MoviesListPresenter {
         print("fetchPopularMovies")
         delegate?.showLoader()
         fetchPopularMoviesUC.execute(page: page) { [weak self] result in
-            self?.delegate?.hideLoader()
+
             switch result {
             case .success(let moviesResponse):
                 DispatchQueue.main.async {
                     self?.movies.append(contentsOf: moviesResponse.results ?? [])
+                    self?.delegate?.hideLoader()
                     self?.delegate?.updateMoviesList()
                 }
             case .failure(let error):
+                self?.delegate?.hideLoader()
                 print(error.description)
             }
         }

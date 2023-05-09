@@ -21,10 +21,6 @@ extension Endpoint {
         "https"
     }
 
-    var host: String {
-        return "api.themoviedb.org"
-    }
-
     var header: [String: String]? {
         return ["Accept": "application/json"]
     }
