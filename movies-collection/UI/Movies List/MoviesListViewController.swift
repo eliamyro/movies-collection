@@ -99,17 +99,14 @@ class MoviesListViewController: UIViewController {
 
 extension MoviesListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        let text = searchController.searchBar.text ?? ""
+        presenter.query = searchController.searchBar.text ?? ""
 
         searchTask?.cancel()
 
         searchTask = Task { @MainActor in
-            try await Task.sleep(nanoseconds: 1_500_000_000)
-            if text.isEmpty && text.count < 3 {
-                print("Load movies")
-            } else {
-                print("Load series")
-            }
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+            presenter.isScrolling = false
+            presenter.search()
         }
     }
 }
@@ -155,8 +152,9 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         let height = scrollView.frame.height
 
         if offsetY > (contentHeight - height) {
+            presenter.isScrolling = true
             presenter.page += 1
-            presenter.fetchPopularMovies()
+            presenter.search()
             print("Page \(presenter.page)")
         }
     }

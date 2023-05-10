@@ -87,14 +87,14 @@ class MovieCell: UITableViewCell {
     // MARK: - Set data
 
     func setup(movie: APIMovie) {
-        let repo = MoviesRepoImp()
-        repo.downloadImage(imageUrl: movie.backdropPath ?? "", completed: { [weak self] image in
+        let downloadImageUC = DownloadImageUCImp()
+        downloadImageUC.execute(imageUrl: movie.backdropPath ?? "") { [weak self] image in
             DispatchQueue.main.async {
-                self?.movieImage.image = image
+                self?.movieImage.image = image ?? UIImage(named: "tmdb")
             }
-        })
-        titleLabel.text = movie.title
-        releaseDateLabel.text = movie.releaseDate
+        }
+        titleLabel.text = movie.mediaType == "tv" ? movie.name : movie.title
+        releaseDateLabel.text = movie.mediaType == "tv" ? movie.firstAirDate : movie.releaseDate
         voteAverageLabel.text = "Rate: \(movie.voteAverage ?? 0)"
         voteCountLabel.text = "From \(movie.voteCount ?? 0) users"
     }
@@ -152,7 +152,7 @@ extension MovieCell {
         containerView.addSubview(releaseDateLabel)
 
         NSLayoutConstraint.activate([
-            releaseDateLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+            releaseDateLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             releaseDateLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             releaseDateLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
         ])
@@ -163,7 +163,7 @@ extension MovieCell {
 
         NSLayoutConstraint.activate([
             voteAverageLabel.topAnchor.constraint(greaterThanOrEqualTo: titleLabel.bottomAnchor, constant: 4),
-            voteAverageLabel.leadingAnchor.constraint(equalTo: movieImage.trailingAnchor, constant: 4),
+            voteAverageLabel.leadingAnchor.constraint(equalTo: movieImage.trailingAnchor, constant: 8),
             voteAverageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4)
         ])
     }
@@ -174,7 +174,7 @@ extension MovieCell {
         NSLayoutConstraint.activate([
             voteCountLabel.leadingAnchor.constraint(equalTo: voteAverageLabel.trailingAnchor, constant: 8),
             voteCountLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4),
-            voteCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: containerView.trailingAnchor, constant: -4)
+            voteCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: containerView.trailingAnchor, constant: -8)
         ])
     }
 }

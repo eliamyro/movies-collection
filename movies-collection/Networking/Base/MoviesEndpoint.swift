@@ -10,12 +10,13 @@ import Foundation
 enum MoviesEndpoint {
     case popularMovies(page: Int)
     case downloadImage(imageUrl: String)
+    case multiSearch(query: String, page: Int)
 }
 
 extension MoviesEndpoint: Endpoint {
     var host: String {
         switch self {
-        case .popularMovies:
+        case .popularMovies, .multiSearch:
             return "api.themoviedb.org"
         case .downloadImage:
             return "image.tmdb.org"
@@ -29,6 +30,9 @@ extension MoviesEndpoint: Endpoint {
 
         case .downloadImage(let imageUrl):
             return "/t/p/w1280\(imageUrl)"
+
+        case .multiSearch:
+            return "/3/search/multi"
         }
     }
 
@@ -40,6 +44,13 @@ extension MoviesEndpoint: Endpoint {
                 URLQueryItem(name: "page", value: "\(page)")
             ]
 
+        case .multiSearch(let query, let page):
+            return [
+                URLQueryItem(name: "api_key", value: APIKey.shared.apiKey),
+                URLQueryItem(name: "query", value: "\(query)"),
+                URLQueryItem(name: "page", value: "\(page)")
+            ]
+
         case .downloadImage:
             return []
         }
@@ -47,7 +58,7 @@ extension MoviesEndpoint: Endpoint {
 
     var method: RequestMethod {
         switch self {
-        case .popularMovies, .downloadImage:
+        case .popularMovies, .downloadImage, .multiSearch:
             return .get
         }
     }

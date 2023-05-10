@@ -10,6 +10,8 @@ import UIKit
 protocol MoviesRepo {
     func fetchPopularMovies<T: Decodable>(page: Int, completed: @escaping (Result<T, RequestError>) -> Void)
 
+    func fetchMedia<T: Decodable>(query: String, page: Int, completed: @escaping (Result<T, RequestError>) -> Void)
+
     func downloadImage(imageUrl: String, completed: @escaping ((UIImage?) -> Void))
 }
 
@@ -19,6 +21,11 @@ class MoviesRepoImp: MoviesRepo {
     func fetchPopularMovies<T: Decodable>(page: Int, completed: @escaping (Result<T, RequestError>) -> Void) {
         print("MoviesRepoImp")
         httpClient.sendRequest(endpoint: MoviesEndpoint.popularMovies(page: page), responseType: T.self, completed: completed)
+    }
+
+    func fetchMedia<T>(query: String, page: Int, completed: @escaping (Result<T, RequestError>) -> Void) where T: Decodable {
+        print("MoviesRepoImp")
+        httpClient.sendRequest(endpoint: MoviesEndpoint.multiSearch(query: query, page: page), responseType: T.self, completed: completed)
     }
 
     func downloadImage(imageUrl: String, completed: @escaping ((UIImage?) -> Void)) {

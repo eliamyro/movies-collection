@@ -23,6 +23,7 @@ struct APIMovie: Codable {
     var posterPath: String?
     var backdropPath: String?
     var releaseDate: String?
+    var firstAirDate: String?
     var voteAverage: Double?
     var voteCount: Int?
     var mediaType: String?
@@ -32,7 +33,9 @@ struct APIMovie: Codable {
         case posterPath = "poster_path"
         case backdropPath = "backdrop_path"
         case releaseDate = "release_date"
+        case firstAirDate = "first_air_date"
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
+        case mediaType = "media_type"
     }
 }
