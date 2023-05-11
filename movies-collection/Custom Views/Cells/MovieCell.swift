@@ -93,8 +93,8 @@ class MovieCell: UITableViewCell {
                 self?.movieImage.image = image ?? UIImage(named: "tmdb")
             }
         }
-        titleLabel.text = movie.mediaType == "tv" ? movie.name : movie.title
-        releaseDateLabel.text = movie.mediaType == "tv" ? movie.firstAirDate : movie.releaseDate
+        titleLabel.text = movie.getMediaType == "tv" ? movie.name : movie.title
+        releaseDateLabel.text = movie.getMediaType == "tv" ? movie.firstAirDate : movie.releaseDate
         voteAverageLabel.text = "Rate: \(movie.voteAverage ?? 0)"
         voteCountLabel.text = "From \(movie.voteCount ?? 0) users"
     }

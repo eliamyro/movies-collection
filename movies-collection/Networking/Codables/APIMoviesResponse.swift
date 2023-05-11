@@ -38,4 +38,8 @@ struct APIMovie: Codable {
         case voteCount = "vote_count"
         case mediaType = "media_type"
     }
+
+    var getMediaType: String {
+        mediaType == "tv" ? "tv" : "movie"
+    }
 }

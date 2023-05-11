@@ -146,6 +146,14 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         return cell
     }
 
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        searchController.searchBar.resignFirstResponder()
+        let movie = presenter.movies[indexPath.row]
+        let detailsController = DetailsViewController()
+        detailsController.presenter.movie = movie
+        navigationController?.pushViewController(detailsController, animated: true)
+    }
+
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
