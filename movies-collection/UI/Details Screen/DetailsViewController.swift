@@ -19,7 +19,7 @@ class DetailsViewController: UIViewController {
         super.viewDidLoad()
 
         setupNavigationBar()
-        presenter.fetchDetails()
+        presenter.fetchData()
     }
 
     // MARK: - Setup UI

@@ -12,12 +12,13 @@ enum MoviesEndpoint {
     case downloadImage(imageUrl: String)
     case multiSearch(query: String, page: Int)
     case mediaDetails(id: Int, mediaType: String)
+    case mediaVideos(id: Int, mediaType: String)
 }
 
 extension MoviesEndpoint: Endpoint {
     var host: String {
         switch self {
-        case .popularMovies, .multiSearch, .mediaDetails:
+        case .popularMovies, .multiSearch, .mediaDetails, .mediaVideos:
             return "api.themoviedb.org"
         case .downloadImage:
             return "image.tmdb.org"
@@ -37,6 +38,9 @@ extension MoviesEndpoint: Endpoint {
 
         case .mediaDetails(let id, let mediaType):
             return "/3/\(mediaType)/\(id)"
+
+        case .mediaVideos(let id, let mediaType):
+            return "/3/\(mediaType)/\(id)/videos"
         }
     }
 
@@ -58,7 +62,7 @@ extension MoviesEndpoint: Endpoint {
         case .downloadImage:
             return []
 
-        case .mediaDetails:
+        case .mediaDetails, .mediaVideos:
             return [
                 URLQueryItem(name: "api_key", value: APIKey.shared.apiKey)
             ]
@@ -67,7 +71,7 @@ extension MoviesEndpoint: Endpoint {
 
     var method: RequestMethod {
         switch self {
-        case .popularMovies, .downloadImage, .multiSearch, .mediaDetails:
+        case .popularMovies, .downloadImage, .multiSearch, .mediaDetails, .mediaVideos:
             return .get
         }
     }
