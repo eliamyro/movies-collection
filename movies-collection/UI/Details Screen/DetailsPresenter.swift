@@ -8,33 +8,52 @@
 import Foundation
 
 protocol DetailsDelegate: AnyObject {
-
+    func updateData()
+    func showLoader()
+    func hideLoader()
 }
 
 class DetailsPresenter {
     let fetchDetailsUC = FetchDetailsUCImp()
     let fetchVideosUC = FetchVideosUCImp()
-    weak var delegate: MoviesListDelegate?
+    let fetchCreditstUC = FetchCreditsUCImp()
+    weak var delegate: DetailsDelegate?
     var movie: APIMovie?
+
     var mediaType: String {
         movie?.getMediaType ?? ""
     }
 
+    var elements: [CustomElementModel] = []
+
     let dispatchGroup = DispatchGroup()
     var mediaDetails: APIDetails?
     var mediaVideo: APIVideo?
+    var cast: [CastModel]?
 
-    func setViewDelegate(delegate: MoviesListDelegate?) {
+    func setViewDelegate(delegate: DetailsDelegate?) {
         self.delegate = delegate
     }
 
     func fetchData() {
+        delegate?.showLoader()
         fetchDetails()
+        fetchCredits()
         fetchVideos()
 
         dispatchGroup.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
-            print("Finished: \(self.mediaDetails?.id ?? 0), \(self.mediaVideo?.key ?? "")")
+            self.elements.append(PosterModel(mediaDetails: self.mediaDetails))
+            self.elements.append(DetailsInfoModel(mediaDetails: self.mediaDetails))
+
+            if let key = self.mediaVideo?.key {
+                self.elements.append(TrailerModel(trailerKey: key))
+            }
+            
+            self.elements.append(CollectionViewContainerModel(collectionItems: self.cast ?? []))
+
+            self.delegate?.updateData()
+            self.delegate?.hideLoader()
         }
     }
 
@@ -44,7 +63,6 @@ class DetailsPresenter {
             guard let self = self else { return }
             switch result {
             case .success(let media):
-                print("Media: \(media.title ?? media.name ?? "")")
                 self.mediaDetails = media
                 self.dispatchGroup.leave()
 
@@ -70,5 +88,24 @@ class DetailsPresenter {
                 self.dispatchGroup.leave()
             }
         }
+    }
+
+    func fetchCredits() {
+        dispatchGroup.enter()
+
+        fetchCreditstUC.execute(id: movie?.id ?? 0, mediaType: mediaType) { [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let response):
+                self.cast = response.castModels
+                self.dispatchGroup.leave()
+
+            case .failure(let error):
+                print(error.description)
+                self.dispatchGroup.leave()
+            }
+        }
+
     }
 }

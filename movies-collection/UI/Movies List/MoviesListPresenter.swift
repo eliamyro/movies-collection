@@ -12,6 +12,7 @@ protocol MoviesListDelegate: AnyObject {
     func showLoader()
     func hideLoader()
 }
+
 class MoviesListPresenter {
 
     let fetchPopularMoviesUC = FetchPopularMoviesUCImp()

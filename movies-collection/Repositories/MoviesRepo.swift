@@ -17,6 +17,8 @@ protocol MoviesRepo {
     func fetchVideos<T: Decodable>(id: Int, mediaType: String, completed: @escaping (Result<T, RequestError>) -> Void)
 
     func downloadImage(imageUrl: String, completed: @escaping ((UIImage?) -> Void))
+
+    func fetchCredits<T: Decodable>(id: Int, mediaType: String, completed: @escaping (Result<T, RequestError>) -> Void)
 }
 
 class MoviesRepoImp: MoviesRepo {
@@ -42,5 +44,9 @@ class MoviesRepoImp: MoviesRepo {
 
     func downloadImage(imageUrl: String, completed: @escaping ((UIImage?) -> Void)) {
         httpClient.downloadImage(endpoint: MoviesEndpoint.downloadImage(imageUrl: imageUrl), completed: completed)
+    }
+
+    func fetchCredits<T: Decodable>(id: Int, mediaType: String, completed: @escaping (Result<T, RequestError>) -> Void) {
+        httpClient.sendRequest(endpoint: MoviesEndpoint.mediaCredits(id: id, mediaType: mediaType), responseType: T.self, completed: completed)
     }
 }

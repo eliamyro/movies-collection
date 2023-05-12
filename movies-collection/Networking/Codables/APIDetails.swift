@@ -17,9 +17,27 @@ struct APIDetails: Codable {
     var genres: [Genre]?
 
     enum CodingKeys: String, CodingKey {
-        case id, title, name, genres
+        case id, title, name, overview, genres
         case backdropPath = "backdrop_path"
         case posterPath = "poster_path"
+    }
+
+    // MARK: - Helper
+
+    var summary: String {
+        overview ?? ""
+    }
+
+    var genre: String {
+        genres?.first?.name ?? "Unknown"
+    }
+
+    var posterUrl: String {
+        backdropPath ?? ""
+    }
+
+    var mediaTitle: String {
+        title ?? name ?? ""
     }
 }
 
