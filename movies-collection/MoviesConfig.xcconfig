@@ -1,0 +1,11 @@
+//
+//  MoviesConfig.xcconfig
+//  movies-collection
+//
+//  Created by Elias Myronidis on 12/5/23.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+API_KEY = 7911dbf695ac380f668bedfe528e0174

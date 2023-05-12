@@ -10,7 +10,7 @@ import Foundation
 struct APIKey {
     static let shared = APIKey()
 
-    let apiKey = "7911dbf695ac380f668bedfe528e0174"
     private init() {}
 
+    let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String
 }

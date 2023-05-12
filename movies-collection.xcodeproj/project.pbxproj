@@ -15,6 +15,7 @@
 		811AFF062A0CD7A800740B73 /* CustomElementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811AFF052A0CD7A800740B73 /* CustomElementType.swift */; };
 		811AFF082A0CD8FD00740B73 /* PosterModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811AFF072A0CD8FD00740B73 /* PosterModel.swift */; };
 		811AFF0A2A0CD97100740B73 /* PosterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 811AFF092A0CD97100740B73 /* PosterCell.swift */; };
+		811D19A72A0EC5B200EE1F41 /* MoviesConfig.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 811D19A62A0EC5B200EE1F41 /* MoviesConfig.xcconfig */; };
 		8125C6912A0A406E00913B9B /* UITableViewCell+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8125C6902A0A406E00913B9B /* UITableViewCell+Ext.swift */; };
 		8125C6942A0A4DEC00913B9B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8125C6962A0A4DEC00913B9B /* Localizable.strings */; };
 		8125C69A2A0A89A800913B9B /* FetchMediaUC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8125C6992A0A89A800913B9B /* FetchMediaUC.swift */; };
@@ -58,6 +59,7 @@
 		811AFF052A0CD7A800740B73 /* CustomElementType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomElementType.swift; sourceTree = "<group>"; };
 		811AFF072A0CD8FD00740B73 /* PosterModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterModel.swift; sourceTree = "<group>"; };
 		811AFF092A0CD97100740B73 /* PosterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterCell.swift; sourceTree = "<group>"; };
+		811D19A62A0EC5B200EE1F41 /* MoviesConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = MoviesConfig.xcconfig; sourceTree = "<group>"; };
 		8125C6902A0A406E00913B9B /* UITableViewCell+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+Ext.swift"; sourceTree = "<group>"; };
 		8125C6952A0A4DEC00913B9B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		8125C6992A0A89A800913B9B /* FetchMediaUC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchMediaUC.swift; sourceTree = "<group>"; };
@@ -155,7 +157,6 @@
 			isa = PBXGroup;
 			children = (
 				8125C68F2A0A405500913B9B /* Extensions */,
-				81715C4A2A08F09E00AB15DA /* Utils */,
 				81715C3F2A08D79700AB15DA /* Networking */,
 				81715C3C2A08D5E500AB15DA /* Repositories */,
 				816CF0B12A06BFD400C94644 /* Custom Views */,
@@ -169,6 +170,7 @@
 				816CF0A82A06AC0400C94644 /* Info.plist */,
 				8125C6962A0A4DEC00913B9B /* Localizable.strings */,
 				816CF0AF2A06AFC800C94644 /* .swiftlint.yml */,
+				811D19A62A0EC5B200EE1F41 /* MoviesConfig.xcconfig */,
 			);
 			path = "movies-collection";
 			sourceTree = "<group>";
@@ -257,6 +259,7 @@
 		81715C402A08D83200AB15DA /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				81715C4B2A08F0BC00AB15DA /* APIKey.swift */,
 				81715C412A08D85200AB15DA /* Endpoint.swift */,
 				81715C432A08DB7200AB15DA /* RequestMethod.swift */,
 				81715C452A08E4FE00AB15DA /* MoviesEndpoint.swift */,
@@ -271,14 +274,6 @@
 				81715C482A08E77E00AB15DA /* HTTPClient.swift */,
 			);
 			path = Client;
-			sourceTree = "<group>";
-		};
-		81715C4A2A08F09E00AB15DA /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				81715C4B2A08F0BC00AB15DA /* APIKey.swift */,
-			);
-			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -341,6 +336,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				816CF0B02A06AFC800C94644 /* .swiftlint.yml in Resources */,
+				811D19A72A0EC5B200EE1F41 /* MoviesConfig.xcconfig in Resources */,
 				8125C6942A0A4DEC00913B9B /* Localizable.strings in Resources */,
 				816CF0A72A06AC0400C94644 /* LaunchScreen.storyboard in Resources */,
 				816CF0A42A06AC0400C94644 /* Assets.xcassets in Resources */,
@@ -439,6 +435,7 @@
 /* Begin XCBuildConfiguration section */
 		816CF0A92A06AC0400C94644 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 811D19A62A0EC5B200EE1F41 /* MoviesConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
