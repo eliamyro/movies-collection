@@ -12,10 +12,9 @@ protocol FetchPopularMoviesUC {
 }
 
 class FetchPopularMoviesUCImp: FetchPopularMoviesUC {
-    let repo = MoviesRepoImp()
+    @Injected var repo: MoviesRepo
 
     func execute(page: Int, completed: @escaping (Result<APIMoviesResponse, RequestError>) -> Void) {
-        print("FetchPopularMoviesUCImp")
         repo.fetchPopularMovies(page: page, completed: completed)
     }
 }

@@ -14,7 +14,7 @@ protocol DownloadImageUC {
 
 class DownloadImageUCImp: DownloadImageUC {
 
-    let repo = MoviesRepoImp()
+    @Injected var repo: MoviesRepo
 
     func execute(imageUrl: String, completed: @escaping ((UIImage?) -> Void)) {
         repo.downloadImage(imageUrl: imageUrl, completed: completed)

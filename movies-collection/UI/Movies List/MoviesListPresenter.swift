@@ -15,8 +15,8 @@ protocol MoviesListDelegate: AnyObject {
 
 class MoviesListPresenter {
 
-    let fetchPopularMoviesUC = FetchPopularMoviesUCImp()
-    let fetchMediaUC = FetchMediaUCImp()
+    @Injected var fetchPopularMoviesUC: FetchPopularMoviesUC
+    @Injected var fetchMediaUC: FetchMediaUC
 
     weak var delegate: MoviesListDelegate?
     var page = 1

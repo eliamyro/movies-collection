@@ -9,6 +9,9 @@ import UIKit
 
 class MovieCell: UITableViewCell {
 
+    // MARK: - Variables
+    @Injected var downloadImageUC: DownloadImageUC
+
     // MARK: - Views
     private lazy var containerView: UIView = {
         let view = UIView()
@@ -87,7 +90,6 @@ class MovieCell: UITableViewCell {
     // MARK: - Set data
 
     func setup(movie: APIMovie) {
-        let downloadImageUC = DownloadImageUCImp()
         downloadImageUC.execute(imageUrl: movie.backdropPath ?? "") { [weak self] image in
             DispatchQueue.main.async {
                 self?.movieImage.image = image ?? UIImage(named: "tmdb")

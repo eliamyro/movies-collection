@@ -22,15 +22,13 @@ protocol MoviesRepo {
 }
 
 class MoviesRepoImp: MoviesRepo {
-    private let httpClient = HTTPClientImp.shared
+    @Injected var httpClient: HTTPClient
 
     func fetchPopularMovies<T: Decodable>(page: Int, completed: @escaping (Result<T, RequestError>) -> Void) {
-        print("MoviesRepoImp")
         httpClient.sendRequest(endpoint: MoviesEndpoint.popularMovies(page: page), responseType: T.self, completed: completed)
     }
 
     func fetchMedia<T: Decodable>(query: String, page: Int, completed: @escaping (Result<T, RequestError>) -> Void) {
-        print("MoviesRepoImp")
         httpClient.sendRequest(endpoint: MoviesEndpoint.multiSearch(query: query, page: page), responseType: T.self, completed: completed)
     }
 

@@ -12,7 +12,7 @@ protocol FetchCreditsUC {
 }
 
 class FetchCreditsUCImp: FetchCreditsUC {
-    let repo = MoviesRepoImp()
+    @Injected var repo: MoviesRepo
 
     func execute(id: Int, mediaType: String, completed: @escaping (Result<APICreditsResponse, RequestError>) -> Void) {
         repo.fetchCredits(id: id, mediaType: mediaType, completed: completed)

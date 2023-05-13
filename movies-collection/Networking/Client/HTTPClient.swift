@@ -13,9 +13,7 @@ protocol HTTPClient {
 }
 
 class HTTPClientImp: HTTPClient {
-    static let shared = HTTPClientImp()
-
-    let cache = NSCache<NSString, UIImage>()
+    let cacheManager = CacheManager.shared
 
     func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type, completed: @escaping (Result<T, RequestError>) -> Void) {
         var urlComponents = URLComponents()
@@ -66,7 +64,7 @@ class HTTPClientImp: HTTPClient {
     func downloadImage(endpoint: Endpoint, completed: @escaping (UIImage?) -> Void) {
         let cacheKey = NSString(string: endpoint.path)
 
-        if let image = cache.object(forKey: cacheKey) {
+        if let image = cacheManager.object(for: cacheKey) {
             completed(image)
             return
         }
@@ -104,7 +102,7 @@ class HTTPClientImp: HTTPClient {
             }
 
             if let image = UIImage(data: data) {
-                self?.cache.setObject(image, forKey: cacheKey)
+                self?.cacheManager.addToCache(image, for: cacheKey)
                 completed(image)
             }
         }

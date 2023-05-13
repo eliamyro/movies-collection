@@ -14,9 +14,9 @@ protocol DetailsDelegate: AnyObject {
 }
 
 class DetailsPresenter {
-    let fetchDetailsUC = FetchDetailsUCImp()
-    let fetchVideosUC = FetchVideosUCImp()
-    let fetchCreditstUC = FetchCreditsUCImp()
+    @Injected var fetchDetailsUC: FetchDetailsUC
+    @Injected var fetchVideosUC: FetchVideosUC
+    @Injected var fetchCreditstUC: FetchCreditsUC
     weak var delegate: DetailsDelegate?
     var movie: APIMovie?
 

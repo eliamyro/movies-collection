@@ -12,7 +12,7 @@ protocol FetchVideosUC {
 }
 
 class FetchVideosUCImp: FetchVideosUC {
-    let repo = MoviesRepoImp()
+    @Injected var repo: MoviesRepo
 
     func execute(id: Int, mediaType: String, completed: @escaping (Result<APIVideosResponse, RequestError>) -> Void) {
         repo.fetchVideos(id: id, mediaType: mediaType, completed: completed)

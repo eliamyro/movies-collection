@@ -9,6 +9,10 @@ import UIKit
 
 class PosterCell: UITableViewCell, CustomElementCell {
 
+    // MARK: - Variables
+
+    @Injected var downloadImageUC: DownloadImageUC
+
     // MARK: - Views
 
     private lazy var posterImageView: UIImageView = {
@@ -63,7 +67,6 @@ class PosterCell: UITableViewCell, CustomElementCell {
 
     private func setup(model: PosterModel) {
         guard let details = model.mediaDetails else { return }
-        let downloadImageUC = DownloadImageUCImp()
 
         downloadImageUC.execute(imageUrl: details.posterUrl) { [weak self] image in
             DispatchQueue.main.async {
