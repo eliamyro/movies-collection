@@ -154,13 +154,35 @@ class DetailsViewController: UIViewController {
     @objc private func favoriteTapped() {
         print("Details favorite")
         let isFavorite = presenter.movie?.isFavorite ?? false
-        presenter.movie?.isFavorite = !isFavorite
-        favoriteButton.setBackgroundImage(favoriteImage(), for: .normal)
-        delegate?.detailsFavoriteTapped(indexPath: presenter.indexPath)
+        updateFavorite(isFavorite: isFavorite)
     }
 
     private func favoriteImage() -> UIImage? {
         return presenter.movie?.isFavorite ?? false ? UIImage(systemName: "heart.fill") : UIImage(systemName: "heart")
+    }
+
+    private func updateFavorite(isFavorite: Bool) {
+        guard let media = presenter.movie else { return }
+        if isFavorite {
+            // Delete from db
+            let id = media.id ?? 0
+            CoreDataManager.shared.deleteFavoriteMedia(id: id) { [weak self] completed in
+                guard let self = self else { return }
+                if completed {
+                    self.favoriteButton.setBackgroundImage(self.favoriteImage(), for: .normal)
+                    self.delegate?.detailsFavoriteTapped(indexPath: self.presenter.indexPath)
+                }
+            }
+        } else {
+            // Save to db
+            CoreDataManager.shared.saveFavoriteMedia(media: media) { [weak self] completed in
+                guard let self = self else { return }
+                if completed {
+                    self.favoriteButton.setBackgroundImage(self.favoriteImage(), for: .normal)
+                    self.delegate?.detailsFavoriteTapped(indexPath: self.presenter.indexPath)
+                }
+            }
+        }
     }
 }
 

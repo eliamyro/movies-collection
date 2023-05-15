@@ -96,8 +96,25 @@ class MoviesListViewController: UIViewController {
 
     private func updateFavoriteAndReload(indexPath: IndexPath) {
         let isFavorite = presenter.movies[indexPath.row].isFavorite
-        presenter.movies[indexPath.row].isFavorite = !isFavorite
-        tableView.reloadRows(at: [indexPath], with: .automatic)
+
+        if isFavorite {
+            // Delete from db
+            let id = presenter.movies[indexPath.row].id ?? 0
+            CoreDataManager.shared.deleteFavoriteMedia(id: id) { completed in
+                if completed {
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                }
+            }
+        } else {
+            // Save to db
+            let media = presenter.movies[indexPath.row]
+            CoreDataManager.shared.saveFavoriteMedia(media: media) { [weak self] completed in
+                guard let self = self else { return }
+                if completed {
+                    self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                }
+            }
+        }
     }
 }
 
@@ -189,6 +206,6 @@ extension MoviesListViewController: MovieCellDelegate {
 extension MoviesListViewController: DetailsViewDelegate {
     func detailsFavoriteTapped(indexPath: IndexPath?) {
         guard let indexPath = indexPath else { return }
-        updateFavoriteAndReload(indexPath: indexPath)
+        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }

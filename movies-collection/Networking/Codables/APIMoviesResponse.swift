@@ -42,6 +42,10 @@ struct APIMovie: Codable {
     var getMediaType: String {
         mediaType == "tv" ? "tv" : "movie"
     }
+}
 
-    var isFavorite: Bool = false
+extension APIMovie {
+    var isFavorite: Bool {
+        return CoreDataManager.shared.isFavorite(id: self.id ?? 0)
+    }
 }
