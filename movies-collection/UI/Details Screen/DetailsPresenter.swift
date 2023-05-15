@@ -6,17 +6,22 @@
 //
 
 import Foundation
+import UIKit
 
 protocol DetailsDelegate: AnyObject {
     func updateData()
     func showLoader()
     func hideLoader()
+    func updateFavoriteButton(image: UIImage?)
 }
 
 class DetailsPresenter {
     @Injected var fetchDetailsUC: FetchDetailsUC
     @Injected var fetchVideosUC: FetchVideosUC
     @Injected var fetchCreditstUC: FetchCreditsUC
+    @Injected var deleteFavoriteMediaFromDbUC: DeleteFavoriteMediaFromDbUC
+    @Injected var saveFavoriteMediaToDbUC: SaveFavoriteMediaToDbUC
+
     weak var delegate: DetailsDelegate?
     var movie: APIMovie?
     var indexPath: IndexPath?
@@ -107,6 +112,31 @@ class DetailsPresenter {
                 self.dispatchGroup.leave()
             }
         }
+    }
 
+    func updateFavorite(isFavorite: Bool) {
+        guard let media = movie else { return }
+        if isFavorite {
+            // Delete from db
+            let id = media.id ?? 0
+            deleteFavoriteMediaFromDbUC.execute(id: id) { [weak self] completed in
+                guard let self = self else { return }
+                if completed {
+                    self.delegate?.updateFavoriteButton(image: self.favoriteImage())
+                }
+            }
+        } else {
+            // Save to db
+            saveFavoriteMediaToDbUC.execute(media: media) { [weak self] completed in
+                guard let self = self else { return }
+                if completed {
+                    self.delegate?.updateFavoriteButton(image: self.favoriteImage())
+                }
+            }
+        }
+    }
+
+    func favoriteImage() -> UIImage? {
+        return movie?.isFavorite ?? false ? UIImage(systemName: "heart.fill") : UIImage(systemName: "heart")
     }
 }

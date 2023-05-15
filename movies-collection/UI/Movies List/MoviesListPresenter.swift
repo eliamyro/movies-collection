@@ -9,6 +9,7 @@ import Foundation
 
 protocol MoviesListDelegate: AnyObject {
     func updateMoviesList()
+    func reloadRows(indexPath: IndexPath)
     func showLoader()
     func hideLoader()
 }
@@ -17,6 +18,8 @@ class MoviesListPresenter {
 
     @Injected var fetchPopularMoviesUC: FetchPopularMoviesUC
     @Injected var fetchMediaUC: FetchMediaUC
+    @Injected var deleteFavoriteMediaFromDbUC: DeleteFavoriteMediaFromDbUC
+    @Injected var saveFavoriteMediaToDbUC: SaveFavoriteMediaToDbUC
 
     weak var delegate: MoviesListDelegate?
     var page = 1
@@ -86,5 +89,29 @@ class MoviesListPresenter {
     func initializeProperties() {
         page = 1
         movies = []
+    }
+
+    func updateFavoriteAndReload(indexPath: IndexPath) {
+        let isFavorite = movies[indexPath.row].isFavorite
+
+        if isFavorite {
+            // Delete from db
+            let id = movies[indexPath.row].id ?? 0
+            deleteFavoriteMediaFromDbUC.execute(id: id) { [weak self] completed in
+                guard let self = self else { return }
+                if completed {
+                    self.delegate?.reloadRows(indexPath: indexPath)
+                }
+            }
+        } else {
+            // Save to db
+            let media = movies[indexPath.row]
+            saveFavoriteMediaToDbUC.execute(media: media) { [weak self] completed in
+                guard let self = self else { return }
+                if completed {
+                    self.delegate?.reloadRows(indexPath: indexPath)
+                }
+            }
+        }
     }
 }

@@ -33,6 +33,7 @@ class DInjection {
         DependencyContainer.shared.register(FetchDetailsUC.self) { FetchDetailsUCImp() }
         DependencyContainer.shared.register(FetchVideosUC.self) { FetchVideosUCImp() }
         DependencyContainer.shared.register(FetchCreditsUC.self) { FetchCreditsUCImp() }
-
+        DependencyContainer.shared.register(DeleteFavoriteMediaFromDbUC.self) { DeleteFavoriteMediaFromDbUCImp() }
+        DependencyContainer.shared.register(SaveFavoriteMediaToDbUC.self) { SaveFavoriteMediaToDbUCImp() }
     }
 }
