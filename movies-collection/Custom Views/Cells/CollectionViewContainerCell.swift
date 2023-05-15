@@ -17,6 +17,7 @@ class CollectionViewContainerCell: UITableViewCell, CustomElementCell {
     
     lazy var collectionView: UICollectionView = {
         let colView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        colView.backgroundColor = .systemBackground
         colView.translatesAutoresizingMaskIntoConstraints = false
         colView.dataSource = self
         colView.delegate = self

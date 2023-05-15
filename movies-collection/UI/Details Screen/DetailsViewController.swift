@@ -57,6 +57,7 @@ class DetailsViewController: UIViewController {
         tableView.contentInsetAdjustmentBehavior = .never
         tableView.estimatedRowHeight = 200
         tableView.rowHeight = UITableView.automaticDimension
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
         tableView.translatesAutoresizingMaskIntoConstraints = false
 
         return tableView
@@ -156,34 +157,6 @@ class DetailsViewController: UIViewController {
         let isFavorite = presenter.movie?.isFavorite ?? false
         presenter.updateFavorite(isFavorite: isFavorite)
     }
-
-//    private func favoriteImage() -> UIImage? {
-//        return presenter.movie?.isFavorite ?? false ? UIImage(systemName: "heart.fill") : UIImage(systemName: "heart")
-//    }
-
-//    private func updateFavorite(isFavorite: Bool) {
-//        guard let media = presenter.movie else { return }
-//        if isFavorite {
-//            // Delete from db
-//            let id = media.id ?? 0
-//            CoreDataManager.shared.deleteFavoriteMedia(id: id) { [weak self] completed in
-//                guard let self = self else { return }
-//                if completed {
-//                    self.favoriteButton.setBackgroundImage(self.favoriteImage(), for: .normal)
-//                    self.delegate?.detailsFavoriteTapped(indexPath: self.presenter.indexPath)
-//                }
-//            }
-//        } else {
-//            // Save to db
-//            CoreDataManager.shared.saveFavoriteMedia(media: media) { [weak self] completed in
-//                guard let self = self else { return }
-//                if completed {
-//                    self.favoriteButton.setBackgroundImage(self.favoriteImage(), for: .normal)
-//                    self.delegate?.detailsFavoriteTapped(indexPath: self.presenter.indexPath)
-//                }
-//            }
-//        }
-//    }
 }
 
 extension DetailsViewController: UITableViewDataSource, UITableViewDelegate {

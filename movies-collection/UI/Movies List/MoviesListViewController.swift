@@ -187,6 +187,9 @@ extension MoviesListViewController: MovieCellDelegate {
 extension MoviesListViewController: DetailsViewDelegate {
     func detailsFavoriteTapped(indexPath: IndexPath?) {
         guard let indexPath = indexPath else { return }
-        tableView.reloadRows(at: [indexPath], with: .automatic)
+        tableView.beginUpdates()
+        tableView.endUpdates()
+        
+        tableView.reloadRows(at: [indexPath], with: .none)
     }
 }
