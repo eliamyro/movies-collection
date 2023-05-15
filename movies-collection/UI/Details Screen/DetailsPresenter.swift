@@ -19,6 +19,7 @@ class DetailsPresenter {
     @Injected var fetchCreditstUC: FetchCreditsUC
     weak var delegate: DetailsDelegate?
     var movie: APIMovie?
+    var indexPath: IndexPath?
 
     var mediaType: String {
         movie?.getMediaType ?? ""

@@ -42,4 +42,6 @@ struct APIMovie: Codable {
     var getMediaType: String {
         mediaType == "tv" ? "tv" : "movie"
     }
+
+    var isFavorite: Bool = false
 }

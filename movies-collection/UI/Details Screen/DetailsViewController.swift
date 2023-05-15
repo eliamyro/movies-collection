@@ -7,11 +7,16 @@
 
 import UIKit
 
+protocol DetailsViewDelegate: AnyObject {
+    func detailsFavoriteTapped(indexPath: IndexPath?)
+}
+
 class DetailsViewController: UIViewController {
 
     // MARK: - Variables
 
     var presenter = DetailsPresenter()
+    var delegate: DetailsViewDelegate?
 
     // MARK: - Views
 
@@ -31,6 +36,16 @@ class DetailsViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
 
         button.addTarget(self, action: #selector(dismissDetails), for: .touchUpInside)
+        return button
+    }()
+
+    private lazy var favoriteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = .systemRed
+        button.isUserInteractionEnabled = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        button.addTarget(self, action: #selector(favoriteTapped), for: .touchUpInside)
         return button
     }()
 
@@ -54,9 +69,9 @@ class DetailsViewController: UIViewController {
         presenter.setViewDelegate(delegate: self)
 
         view.backgroundColor = .systemBackground
-        setupTableView()
-        setupBackButton()
-        configureActivityIndicator()
+
+        setupUI()
+
         registerCells()
         presenter.fetchData()
     }
@@ -78,6 +93,13 @@ class DetailsViewController: UIViewController {
         tableView.register(DetailsInfoCell.self, forCellReuseIdentifier: CustomElementType.detailsInfo.rawValue)
         tableView.register(TrailerCell.self, forCellReuseIdentifier: CustomElementType.trailer.rawValue)
         tableView.register(CollectionViewContainerCell.self, forCellReuseIdentifier: CustomElementType.collectionViewContainer.rawValue)
+    }
+
+    private func setupUI() {
+        setupTableView()
+        setupBackButton()
+        configureFavoriteButton()
+        configureActivityIndicator()
     }
 
     private func setupTableView() {
@@ -102,6 +124,18 @@ class DetailsViewController: UIViewController {
         ])
     }
 
+    private func configureFavoriteButton() {
+        favoriteButton.setBackgroundImage(favoriteImage(), for: .normal)
+        view.addSubview(favoriteButton)
+
+        NSLayoutConstraint.activate([
+            favoriteButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            favoriteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 32),
+            favoriteButton.widthAnchor.constraint(equalToConstant: 32)
+        ])
+    }
+
     private func configureActivityIndicator() {
         view.addSubview(activityIndicator)
 
@@ -115,6 +149,18 @@ class DetailsViewController: UIViewController {
 
     @objc private func dismissDetails() {
         navigationController?.popViewController(animated: true)
+    }
+
+    @objc private func favoriteTapped() {
+        print("Details favorite")
+        let isFavorite = presenter.movie?.isFavorite ?? false
+        presenter.movie?.isFavorite = !isFavorite
+        favoriteButton.setBackgroundImage(favoriteImage(), for: .normal)
+        delegate?.detailsFavoriteTapped(indexPath: presenter.indexPath)
+    }
+
+    private func favoriteImage() -> UIImage? {
+        return presenter.movie?.isFavorite ?? false ? UIImage(systemName: "heart.fill") : UIImage(systemName: "heart")
     }
 }
 

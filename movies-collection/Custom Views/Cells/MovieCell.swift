@@ -7,10 +7,15 @@
 
 import UIKit
 
+protocol MovieCellDelegate: AnyObject {
+    func favoriteTapped(cell: MovieCell)
+}
+
 class MovieCell: UITableViewCell {
 
     // MARK: - Variables
     @Injected var downloadImageUC: DownloadImageUC
+    weak var delegate: MovieCellDelegate?
 
     // MARK: - Views
     private lazy var containerView: UIView = {
@@ -75,11 +80,22 @@ class MovieCell: UITableViewCell {
         return label
     }()
 
+    private lazy var favoriteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = .systemRed
+        button.isUserInteractionEnabled = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        button.addTarget(self, action: #selector(favoriteTapped), for: .touchUpInside)
+        return button
+    }()
+
     // MARK: - Lifecycle
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
+        contentView.isUserInteractionEnabled = true
+        selectionStyle = .none
         configureUI()
     }
 
@@ -99,6 +115,12 @@ class MovieCell: UITableViewCell {
         releaseDateLabel.text = movie.getMediaType == "tv" ? movie.firstAirDate : movie.releaseDate
         voteAverageLabel.text = "Rate: \(movie.voteAverage ?? 0)"
         voteCountLabel.text = "From \(movie.voteCount ?? 0) users"
+        let favoriteImage = movie.isFavorite ? UIImage(systemName: "heart.fill") : UIImage(systemName: "heart")
+        favoriteButton.setBackgroundImage(favoriteImage, for: .normal)
+    }
+
+    @objc private func favoriteTapped() {
+        delegate?.favoriteTapped(cell: self)
     }
 }
 
@@ -111,9 +133,10 @@ extension MovieCell {
         configureReleaseDateLabel()
         configureVoteAverageLabel()
         configureVoteCountLabel()
+        configureFavoriteButton()
     }
 
-    func configureContainerView() {
+    private func configureContainerView() {
         addSubview(containerView)
 
         NSLayoutConstraint.activate([
@@ -124,7 +147,7 @@ extension MovieCell {
         ])
     }
 
-    func configureMovieImage() {
+    private func configureMovieImage() {
         containerView.addSubview(movieImage)
 
         let heightConstraint = movieImage.heightAnchor.constraint(equalToConstant: 100)
@@ -139,7 +162,7 @@ extension MovieCell {
         ])
     }
 
-    func configureTitleLabel() {
+    private func configureTitleLabel() {
         containerView.addSubview(titleLabel)
 
         NSLayoutConstraint.activate([
@@ -150,7 +173,7 @@ extension MovieCell {
         ])
     }
 
-    func configureReleaseDateLabel() {
+    private func configureReleaseDateLabel() {
         containerView.addSubview(releaseDateLabel)
 
         NSLayoutConstraint.activate([
@@ -160,7 +183,7 @@ extension MovieCell {
         ])
     }
 
-    func configureVoteAverageLabel() {
+    private func configureVoteAverageLabel() {
         containerView.addSubview(voteAverageLabel)
 
         NSLayoutConstraint.activate([
@@ -170,13 +193,24 @@ extension MovieCell {
         ])
     }
 
-    func configureVoteCountLabel() {
+    private func configureVoteCountLabel() {
         containerView.addSubview(voteCountLabel)
 
         NSLayoutConstraint.activate([
             voteCountLabel.leadingAnchor.constraint(equalTo: voteAverageLabel.trailingAnchor, constant: 8),
             voteCountLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4),
             voteCountLabel.trailingAnchor.constraint(lessThanOrEqualTo: containerView.trailingAnchor, constant: -8)
+        ])
+    }
+
+    private func configureFavoriteButton() {
+        containerView.addSubview(favoriteButton)
+
+        NSLayoutConstraint.activate([
+            favoriteButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
+            favoriteButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            favoriteButton.widthAnchor.constraint(equalToConstant: 40),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
 }

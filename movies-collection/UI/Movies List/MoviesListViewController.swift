@@ -93,6 +93,12 @@ class MoviesListViewController: UIViewController {
     private func fetchPopularMovies() {
         presenter.fetchPopularMovies()
     }
+
+    private func updateFavoriteAndReload(indexPath: IndexPath) {
+        let isFavorite = presenter.movies[indexPath.row].isFavorite
+        presenter.movies[indexPath.row].isFavorite = !isFavorite
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+    }
 }
 
 // MARK: - UISearchResultsUpdating
@@ -141,6 +147,7 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
 
+        cell.delegate = self
         cell.setup(movie: presenter.movies[indexPath.row])
 
         return cell
@@ -150,7 +157,9 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         searchController.searchBar.resignFirstResponder()
         let movie = presenter.movies[indexPath.row]
         let detailsController = DetailsViewController()
+        detailsController.delegate = self
         detailsController.presenter.movie = movie
+        detailsController.presenter.indexPath = indexPath
         navigationController?.pushViewController(detailsController, animated: true)
     }
 
@@ -165,5 +174,21 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
             presenter.search()
             print("Page \(presenter.page)")
         }
+    }
+}
+
+// MARK: - MovieCellDelegate
+
+extension MoviesListViewController: MovieCellDelegate {
+    func favoriteTapped(cell: MovieCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        updateFavoriteAndReload(indexPath: indexPath)
+    }
+}
+
+extension MoviesListViewController: DetailsViewDelegate {
+    func detailsFavoriteTapped(indexPath: IndexPath?) {
+        guard let indexPath = indexPath else { return }
+        updateFavoriteAndReload(indexPath: indexPath)
     }
 }
