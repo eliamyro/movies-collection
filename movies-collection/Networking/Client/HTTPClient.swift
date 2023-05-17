@@ -5,14 +5,41 @@
 //  Created by Elias Myronidis on 8/5/23.
 //
 
+import Combine
 import UIKit
 
 protocol HTTPClient {
     func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type, completed: @escaping (Result<T, RequestError>) -> Void)
+    func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type) -> AnyPublisher<T, RequestError>
     func downloadImage(endpoint: Endpoint, completed: @escaping (UIImage?) -> Void)
 }
 
 class HTTPClientImp: HTTPClient {
+    func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type) -> AnyPublisher<T, RequestError> {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = endpoint.scheme
+        urlComponents.host = endpoint.host
+        urlComponents.path = endpoint.path
+        urlComponents.queryItems = endpoint.queryItems
+
+        guard let url = urlComponents.url else {
+            print("Failed to get url from urlComponents")
+            return Fail(error: RequestError.invalidURL).eraseToAnyPublisher()
+        }
+
+        print("URL: \(url)")
+
+        var request = URLRequest(url: url)
+        request.httpMethod = endpoint.method.rawValue
+        request.allHTTPHeaderFields = endpoint.header // Try also without it
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .assumeHTTP()
+            .responseData()
+            .decoding(T.self, decoder: JSONDecoder())
+            .eraseToAnyPublisher()
+    }
+
     let cacheManager = CacheManager.shared
 
     func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type, completed: @escaping (Result<T, RequestError>) -> Void) {

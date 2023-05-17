@@ -5,6 +5,7 @@
 //  Created by Elias Myronidis on 11/5/23.
 //
 
+import Combine
 import UIKit
 
 protocol DetailsViewDelegate: AnyObject {
@@ -72,9 +73,22 @@ class DetailsViewController: UIViewController {
         view.backgroundColor = .systemBackground
 
         setupUI()
+        bind()
 
         registerCells()
         presenter.fetchData()
+    }
+
+    private func bind() {
+        presenter.$apiElements
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                guard case .failure(let error) = completion else { return }
+                print(error)
+            } receiveValue: { _ in
+                self.tableView.reloadData()
+            }
+            .store(in: &presenter.cancellables)
     }
 
     // MARK: - Setup UI
@@ -161,11 +175,11 @@ class DetailsViewController: UIViewController {
 
 extension DetailsViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.elements.count
+        presenter.apiElements.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellModel = presenter.elements[indexPath.row]
+        let cellModel = presenter.apiElements[indexPath.row]
         let cellIdentifier = cellModel.type.rawValue
         print(cellIdentifier)
         guard let customCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)

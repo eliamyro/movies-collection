@@ -5,6 +5,7 @@
 //  Created by Elias Myronidis on 11/5/23.
 //
 
+import Combine
 import Foundation
 import UIKit
 
@@ -31,36 +32,65 @@ class DetailsPresenter {
     }
 
     var elements: [CustomElementModel] = []
-
+    @Published var apiElements: [CustomElementModel] = []
     let dispatchGroup = DispatchGroup()
     var mediaDetails: APIDetails?
+    @Published var apiMediaDetails: APIDetails?
+    @Published var apiCast: [CastModel]?
+    @Published var apiVideo: APIVideo?
     var mediaVideo: APIVideo?
     var cast: [CastModel]?
+
+    var cancellables = Set<AnyCancellable>()
 
     func setViewDelegate(delegate: DetailsDelegate?) {
         self.delegate = delegate
     }
 
     func fetchData() {
-        delegate?.showLoader()
-        fetchDetails()
-        fetchCredits()
-        fetchVideos()
+//        delegate?.showLoader()
+//        fetchDetails()
+//        fetchCredits()
+//        fetchVideos()
 
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            guard let self = self else { return }
-            self.elements.append(PosterModel(mediaDetails: self.mediaDetails))
-            self.elements.append(DetailsInfoModel(mediaDetails: self.mediaDetails))
+        Publishers.CombineLatest3(fetchDetailsComb(), fetchCreditsComb(), fetchVideosComb())
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                guard case .failure(let error) = completion else { return }
+                print(error.description)
+            } receiveValue: { [weak self] details, credits, videos in
+                guard let self = self else { return }
 
-            if let key = self.mediaVideo?.key {
-                self.elements.append(TrailerModel(trailerKey: key))
+                self.apiElements.append(PosterModel(mediaDetails: details))
+                self.apiElements.append(DetailsInfoModel(mediaDetails: details))
+
+                let apiVideo = (videos.results ?? []).first
+                if let key = apiVideo?.key {
+                    self.apiElements.append(TrailerModel(trailerKey: key))
+                }
+
+                self.apiElements.append(CollectionViewContainerModel(collectionItems: credits.castModels))
             }
-            
-            self.elements.append(CollectionViewContainerModel(collectionItems: self.cast ?? []))
+            .store(in: &cancellables)
 
-            self.delegate?.updateData()
-            self.delegate?.hideLoader()
-        }
+//        dispatchGroup.notify(queue: .main) { [weak self] in
+//            guard let self = self else { return }
+//            self.elements.append(PosterModel(mediaDetails: self.mediaDetails))
+//            self.elements.append(DetailsInfoModel(mediaDetails: self.mediaDetails))
+//
+//            if let key = self.mediaVideo?.key {
+//                self.elements.append(TrailerModel(trailerKey: key))
+//            }
+//
+//            self.elements.append(CollectionViewContainerModel(collectionItems: self.cast ?? []))
+//
+//            self.delegate?.updateData()
+//            self.delegate?.hideLoader()
+//        }
+    }
+
+    func fetchDetailsComb() -> AnyPublisher<APIDetails, RequestError>  {
+        fetchDetailsUC.execute(id: movie?.id ?? 0, mediaType: mediaType)
     }
 
     func fetchDetails() {
@@ -79,6 +109,10 @@ class DetailsPresenter {
         }
     }
 
+    func fetchVideosComb() -> AnyPublisher<APIVideosResponse, RequestError> {
+        fetchVideosUC.execute(id: movie?.id ?? 0, mediaType: mediaType)
+    }
+
     func fetchVideos() {
         dispatchGroup.enter()
         fetchVideosUC.execute(id: movie?.id ?? 0, mediaType: mediaType) { [weak self] result in
@@ -94,6 +128,10 @@ class DetailsPresenter {
                 self.dispatchGroup.leave()
             }
         }
+    }
+
+    func fetchCreditsComb() -> AnyPublisher<APICreditsResponse, RequestError> {
+        fetchCreditstUC.execute(id: movie?.id ?? 0, mediaType: mediaType)
     }
 
     func fetchCredits() {

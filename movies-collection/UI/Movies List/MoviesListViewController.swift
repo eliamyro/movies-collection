@@ -51,11 +51,22 @@ class MoviesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         presenter.setViewDelegate(delegate: self)
+        bind()
 
         setupNavigationBar()
         setupTableView()
         setupIndicatorView()
         fetchPopularMovies()
+    }
+
+    private func bind() {
+        presenter.$apiMovies
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.tableView.reloadData()
+            }
+            .store(in: &presenter.cancellables)
     }
 
     // MARK: - Setup UI
@@ -91,7 +102,8 @@ class MoviesListViewController: UIViewController {
     // MARK: - Helper methods
 
     private func fetchPopularMovies() {
-        presenter.fetchPopularMovies()
+        presenter.fetchPopularMoviesComb()
+//        presenter.fetchPopularMovies()
     }
 }
 
@@ -137,7 +149,7 @@ extension MoviesListViewController: MoviesListDelegate {
 
 extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.movies.count
+        presenter.apiMovies.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -146,14 +158,14 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         }
 
         cell.delegate = self
-        cell.setup(movie: presenter.movies[indexPath.row])
+        cell.setup(movie: presenter.apiMovies[indexPath.row])
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         searchController.searchBar.resignFirstResponder()
-        let movie = presenter.movies[indexPath.row]
+        let movie = presenter.apiMovies[indexPath.row]
         let detailsController = DetailsViewController()
         detailsController.delegate = self
         detailsController.presenter.movie = movie

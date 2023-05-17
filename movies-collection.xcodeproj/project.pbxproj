@@ -56,6 +56,7 @@
 		81B8FE282A0E2BFF0076384B /* CastCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B8FE272A0E2BFF0076384B /* CastCollectionViewCell.swift */; };
 		81B8FE2A2A0E30440076384B /* CastModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B8FE292A0E30440076384B /* CastModel.swift */; };
 		81B8FE2C2A0E35A10076384B /* CollectionViewContainerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B8FE2B2A0E35A10076384B /* CollectionViewContainerModel.swift */; };
+		81BDEC162A151A5F0069DA3F /* Combine+Networking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81BDEC152A151A5F0069DA3F /* Combine+Networking.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -110,6 +111,7 @@
 		81B8FE272A0E2BFF0076384B /* CastCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastCollectionViewCell.swift; sourceTree = "<group>"; };
 		81B8FE292A0E30440076384B /* CastModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CastModel.swift; sourceTree = "<group>"; };
 		81B8FE2B2A0E35A10076384B /* CollectionViewContainerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewContainerModel.swift; sourceTree = "<group>"; };
+		81BDEC152A151A5F0069DA3F /* Combine+Networking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Combine+Networking.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +151,7 @@
 			isa = PBXGroup;
 			children = (
 				8125C6902A0A406E00913B9B /* UITableViewCell+Ext.swift */,
+				81BDEC152A151A5F0069DA3F /* Combine+Networking.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -449,6 +452,7 @@
 				811AFF0A2A0CD97100740B73 /* PosterCell.swift in Sources */,
 				811AFF062A0CD7A800740B73 /* CustomElementType.swift in Sources */,
 				811AFEFB2A0CBD6900740B73 /* DetailsViewController.swift in Sources */,
+				81BDEC162A151A5F0069DA3F /* Combine+Networking.swift in Sources */,
 				816CF0B42A06BFFE00C94644 /* MovieCell.swift in Sources */,
 				81715C442A08DB7200AB15DA /* RequestMethod.swift in Sources */,
 				81715C4C2A08F0BC00AB15DA /* APIKey.swift in Sources */,
