@@ -10,7 +10,6 @@ import Foundation
 
 protocol FetchVideosUC {
     func execute(id: Int, mediaType: String) -> AnyPublisher<APIVideosResponse, RequestError>
-    func execute(id: Int, mediaType: String, completed: @escaping (Result<APIVideosResponse, RequestError>) -> Void)
 }
 
 class FetchVideosUCImp: FetchVideosUC {
@@ -18,8 +17,5 @@ class FetchVideosUCImp: FetchVideosUC {
 
     func execute(id: Int, mediaType: String) -> AnyPublisher<APIVideosResponse, RequestError> {
         repo.fetchVideos(id: id, mediaType: mediaType)
-    }
-    func execute(id: Int, mediaType: String, completed: @escaping (Result<APIVideosResponse, RequestError>) -> Void) {
-        repo.fetchVideos(id: id, mediaType: mediaType, completed: completed)
     }
 }

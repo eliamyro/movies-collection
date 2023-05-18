@@ -8,16 +8,11 @@
 import Combine
 import UIKit
 
-protocol DetailsViewDelegate: AnyObject {
-    func detailsFavoriteTapped(indexPath: IndexPath?)
-}
-
 class DetailsViewController: UIViewController {
 
     // MARK: - Variables
 
-    var presenter = DetailsPresenter()
-    var delegate: DetailsViewDelegate?
+    var viewModel: DetailsVM
 
     // MARK: - Views
 
@@ -66,21 +61,41 @@ class DetailsViewController: UIViewController {
 
     // MARK: - Lifecycle
 
+    init(viewModel: DetailsVM) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.setViewDelegate(delegate: self)
-
         view.backgroundColor = .systemBackground
 
         setupUI()
         bind()
 
         registerCells()
-        presenter.fetchData()
+        viewModel.fetchData()
     }
 
     private func bind() {
-        presenter.$apiElements
+        viewModel.loaderSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isLoading in
+                guard let self = self else { return }
+
+                if isLoading {
+                    self.activityIndicator.startAnimating()
+                } else {
+                    self.activityIndicator.stopAnimating()
+                }
+            }
+            .store(in: &viewModel.cancellables)
+
+        viewModel.$apiElements
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 guard case .failure(let error) = completion else { return }
@@ -88,7 +103,16 @@ class DetailsViewController: UIViewController {
             } receiveValue: { _ in
                 self.tableView.reloadData()
             }
-            .store(in: &presenter.cancellables)
+            .store(in: &viewModel.cancellables)
+
+        viewModel.favoriteImageSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] image in
+                guard let self = self else { return }
+                self.favoriteButton.setBackgroundImage(image, for: .normal)
+                self.viewModel.favoriteTappedSubject.send(self.viewModel.indexPath)
+            }
+            .store(in: &viewModel.cancellables)
     }
 
     // MARK: - Setup UI
@@ -140,7 +164,7 @@ class DetailsViewController: UIViewController {
     }
 
     private func configureFavoriteButton() {
-        favoriteButton.setBackgroundImage(presenter.favoriteImage(), for: .normal)
+        favoriteButton.setBackgroundImage(viewModel.favoriteImage(), for: .normal)
         view.addSubview(favoriteButton)
 
         NSLayoutConstraint.activate([
@@ -168,18 +192,18 @@ class DetailsViewController: UIViewController {
 
     @objc private func favoriteTapped() {
         print("Details favorite")
-        let isFavorite = presenter.movie?.isFavorite ?? false
-        presenter.updateFavorite(isFavorite: isFavorite)
+        let isFavorite = viewModel.movie?.isFavorite ?? false
+        viewModel.updateFavorite(isFavorite: isFavorite)
     }
 }
 
 extension DetailsViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.apiElements.count
+        viewModel.apiElements.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellModel = presenter.apiElements[indexPath.row]
+        let cellModel = viewModel.apiElements[indexPath.row]
         let cellIdentifier = cellModel.type.rawValue
         print(cellIdentifier)
         guard let customCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
@@ -193,30 +217,5 @@ extension DetailsViewController: UITableViewDataSource, UITableViewDelegate {
     func onLayoutChangeNeeded() {
         tableView.beginUpdates()
         tableView.endUpdates()
-    }
-}
-
-// MARK: - DetailsDelegate
-
-extension DetailsViewController: DetailsDelegate {
-    func updateData() {
-        self.tableView.reloadData()
-    }
-
-    func showLoader() {
-        DispatchQueue.main.async {
-            self.activityIndicator.startAnimating()
-        }
-    }
-
-    func hideLoader() {
-        DispatchQueue.main.async {
-            self.activityIndicator.stopAnimating()
-        }
-    }
-
-    func updateFavoriteButton(image: UIImage?) {
-        self.favoriteButton.setBackgroundImage(image, for: .normal)
-        delegate?.detailsFavoriteTapped(indexPath: presenter.indexPath)
     }
 }

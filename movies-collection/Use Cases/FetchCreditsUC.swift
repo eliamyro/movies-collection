@@ -10,7 +10,6 @@ import Foundation
 
 protocol FetchCreditsUC {
     func execute(id: Int, mediaType: String) -> AnyPublisher<APICreditsResponse, RequestError>
-    func execute(id: Int, mediaType: String, completed: @escaping (Result<APICreditsResponse, RequestError>) -> Void)
 }
 
 class FetchCreditsUCImp: FetchCreditsUC {
@@ -18,8 +17,5 @@ class FetchCreditsUCImp: FetchCreditsUC {
 
     func execute(id: Int, mediaType: String) -> AnyPublisher<APICreditsResponse, RequestError> {
         repo.fetchCredits(id: id, mediaType: mediaType)
-    }
-    func execute(id: Int, mediaType: String, completed: @escaping (Result<APICreditsResponse, RequestError>) -> Void) {
-        repo.fetchCredits(id: id, mediaType: mediaType, completed: completed)
     }
 }

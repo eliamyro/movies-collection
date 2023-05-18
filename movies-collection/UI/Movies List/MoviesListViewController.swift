@@ -125,6 +125,14 @@ class MoviesListViewController: UIViewController {
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+
+    func detailsFavoriteTapped(indexPath: IndexPath?) {
+        guard let indexPath = indexPath else { return }
+        tableView.beginUpdates()
+        tableView.endUpdates()
+
+        tableView.reloadRows(at: [indexPath], with: .none)
+    }
 }
 
 // MARK: - UISearchResultsUpdating
@@ -168,10 +176,18 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         searchController.searchBar.resignFirstResponder()
         let movie = viewModel.apiMovies[indexPath.row]
-        let detailsController = DetailsViewController()
-        detailsController.delegate = self
-        detailsController.presenter.movie = movie
-        detailsController.presenter.indexPath = indexPath
+        let viewModel = DetailsVM()
+        viewModel.movie = movie
+        viewModel.indexPath = indexPath
+        let detailsController = DetailsViewController(viewModel: viewModel)
+        detailsController.viewModel.favoriteTappedSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] indexPath in
+                guard let self = self else { return }
+                self.detailsFavoriteTapped(indexPath: indexPath)
+            }
+            .store(in: &detailsController.viewModel.cancellables)
+
         navigationController?.pushViewController(detailsController, animated: true)
     }
 
@@ -186,15 +202,5 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
             viewModel.search()
             print("Page \(viewModel.page)")
         }
-    }
-}
-
-extension MoviesListViewController: DetailsViewDelegate {
-    func detailsFavoriteTapped(indexPath: IndexPath?) {
-        guard let indexPath = indexPath else { return }
-        tableView.beginUpdates()
-        tableView.endUpdates()
-        
-        tableView.reloadRows(at: [indexPath], with: .none)
     }
 }

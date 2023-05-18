@@ -5,6 +5,7 @@
 //  Created by Elias Myronidis on 11/5/23.
 //
 
+import Combine
 import UIKit
 
 class PosterCell: UITableViewCell, CustomElementCell {
@@ -12,6 +13,7 @@ class PosterCell: UITableViewCell, CustomElementCell {
     // MARK: - Variables
 
     @Injected var downloadImageUC: DownloadImageUC
+    var cancellable: AnyCancellable?
 
     // MARK: - Views
 
@@ -68,11 +70,12 @@ class PosterCell: UITableViewCell, CustomElementCell {
     private func setup(model: PosterModel) {
         guard let details = model.mediaDetails else { return }
 
-        downloadImageUC.execute(imageUrl: details.posterUrl) { [weak self] image in
-            DispatchQueue.main.async {
-                self?.posterImageView.image = image
+        cancellable = downloadImageUC.execute(imageUrl: details.posterUrl)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] image in
+                guard let self = self else { return }
+                self.posterImageView.image = image
             }
-        }
 
         titleLabel.text = details.mediaTitle
     }
