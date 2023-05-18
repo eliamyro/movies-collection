@@ -11,10 +11,14 @@ import UIKit
 protocol HTTPClient {
     func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type, completed: @escaping (Result<T, RequestError>) -> Void)
     func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type) -> AnyPublisher<T, RequestError>
+
+    func downloadImage(endpoint: Endpoint) -> AnyPublisher<UIImage?, Never>
     func downloadImage(endpoint: Endpoint, completed: @escaping (UIImage?) -> Void)
 }
 
 class HTTPClientImp: HTTPClient {
+    let cacheManager = CacheManager.shared
+
     func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type) -> AnyPublisher<T, RequestError> {
         var urlComponents = URLComponents()
         urlComponents.scheme = endpoint.scheme
@@ -39,8 +43,6 @@ class HTTPClientImp: HTTPClient {
             .decoding(T.self, decoder: JSONDecoder())
             .eraseToAnyPublisher()
     }
-
-    let cacheManager = CacheManager.shared
 
     func sendRequest<T: Decodable>(endpoint: Endpoint, responseType: T.Type, completed: @escaping (Result<T, RequestError>) -> Void) {
         var urlComponents = URLComponents()
@@ -86,6 +88,43 @@ class HTTPClientImp: HTTPClient {
         }
 
         task.resume()
+    }
+
+    func downloadImage(endpoint: Endpoint) -> AnyPublisher<UIImage?, Never> {
+        let cacheKey = NSString(string: endpoint.path)
+
+        if let image = cacheManager.object(for: cacheKey) {
+            return Just(image).eraseToAnyPublisher()
+        }
+
+        var urlComponents = URLComponents()
+        urlComponents.scheme = endpoint.scheme
+        urlComponents.host = endpoint.host
+        urlComponents.path = endpoint.path
+
+        guard let url = urlComponents.url else {
+            print("Failed to get url from urlComponents")
+            return Just(nil).eraseToAnyPublisher()
+        }
+
+        print("URL: \(url)")
+
+        var request = URLRequest(url: url)
+        request.httpMethod = endpoint.method.rawValue
+        request.allHTTPHeaderFields = endpoint.header
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .map { $0.data }
+            .map { [weak self] data in
+                if let image = UIImage(data: data) {
+                    self?.cacheManager.addToCache(image, for: cacheKey)
+                    return image
+                }
+
+                return nil
+            }
+            .replaceError(with: nil)
+            .eraseToAnyPublisher()
     }
 
     func downloadImage(endpoint: Endpoint, completed: @escaping (UIImage?) -> Void) {

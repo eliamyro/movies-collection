@@ -155,10 +155,10 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
 
-        cell.cancellable = cell.favoriteSubject.sink { [weak self] favCell in
+        cell.favoriteSubject.sink { [weak self] favCell in
             guard let indexPath = tableView.indexPath(for: favCell) else { return }
             self?.viewModel.updateFavoriteAndReload(indexPath: indexPath)
-        }
+        }.store(in: &cell.cancellables)
 
         cell.setup(movie: viewModel.apiMovies[indexPath.row])
 

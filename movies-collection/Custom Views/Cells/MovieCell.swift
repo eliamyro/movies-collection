@@ -12,8 +12,8 @@ class MovieCell: UITableViewCell {
 
     // MARK: - Variables
     @Injected var downloadImageUC: DownloadImageUC
-    var cancellable: AnyCancellable?
     var favoriteSubject = PassthroughSubject<MovieCell, Never>()
+    var cancellables = Set<AnyCancellable>()
 
     // MARK: - Views
     private lazy var containerView: UIView = {
@@ -104,11 +104,13 @@ class MovieCell: UITableViewCell {
     // MARK: - Set data
 
     func setup(movie: APIMovie) {
-        downloadImageUC.execute(imageUrl: movie.backdropPath ?? "") { [weak self] image in
-            DispatchQueue.main.async {
+        downloadImageUC.execute(imageUrl: movie.backdropPath ?? "")
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] image in
                 self?.movieImage.image = image ?? UIImage(named: "tmdb")
             }
-        }
+            .store(in: &cancellables)
+
         titleLabel.text = movie.getMediaType == "tv" ? movie.name : movie.title
         releaseDateLabel.text = movie.getMediaType == "tv" ? movie.firstAirDate : movie.releaseDate
         voteAverageLabel.text = "Rate: \(movie.voteAverage ?? 0)"
@@ -119,6 +121,11 @@ class MovieCell: UITableViewCell {
 
     @objc private func favoriteTapped() {
         favoriteSubject.send(self)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cancellables.removeAll()
     }
 }
 

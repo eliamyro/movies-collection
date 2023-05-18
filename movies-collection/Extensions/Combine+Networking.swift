@@ -43,7 +43,7 @@ public extension Publisher where
 }
 
 public extension Publisher where Output == Data, Failure == RequestError {
-    func decoding<T : Decodable, Decoder: TopLevelDecoder>(_ type: T.Type, decoder: Decoder) -> AnyPublisher<T, RequestError> where Decoder.Input == Data {
+    func decoding<T: Decodable, Decoder: TopLevelDecoder>(_ type: T.Type, decoder: Decoder) -> AnyPublisher<T, RequestError> where Decoder.Input == Data {
         decode(type: T.self, decoder: decoder)
             .mapError { error in
                 if error is DecodingError {
