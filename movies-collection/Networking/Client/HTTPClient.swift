@@ -67,14 +67,15 @@ class HTTPClientImp: HTTPClient {
         request.allHTTPHeaderFields = endpoint.header
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0.data }
-            .map { [weak self] data in
-                if let image = UIImage(data: data) {
-                    self?.cacheManager.addToCache(image, for: cacheKey)
-                    return image
+            .map { [weak self] data, response in
+                guard let self = self, let gResponse = response as? HTTPURLResponse,
+                      gResponse.statusCode >= 200 && gResponse.statusCode < 300,
+                      let image = UIImage(data: data) else {
+                    return nil
                 }
 
-                return nil
+                self.cacheManager.addToCache(image, for: cacheKey)
+                return image
             }
             .replaceError(with: nil)
             .eraseToAnyPublisher()
