@@ -1,3 +1,3 @@
 Movies Collection
 
-Implementation using Combine is on "combine" branch
+Implementation withcout Combine is on "without-combine" branch
