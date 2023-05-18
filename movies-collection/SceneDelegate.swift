@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         DInjection.shared.registerDependencies()
 
-        let navigationController = UINavigationController(rootViewController: MoviesListViewController())
+        let navigationController = UINavigationController(rootViewController: MoviesListViewController(viewModel: MoviesListVM()))
 
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController = navigationController

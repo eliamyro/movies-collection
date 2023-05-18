@@ -5,17 +5,15 @@
 //  Created by Elias Myronidis on 6/5/23.
 //
 
+import Combine
 import UIKit
-
-protocol MovieCellDelegate: AnyObject {
-    func favoriteTapped(cell: MovieCell)
-}
 
 class MovieCell: UITableViewCell {
 
     // MARK: - Variables
     @Injected var downloadImageUC: DownloadImageUC
-    weak var delegate: MovieCellDelegate?
+    var cancellable: AnyCancellable?
+    var favoriteSubject = PassthroughSubject<MovieCell, Never>()
 
     // MARK: - Views
     private lazy var containerView: UIView = {
@@ -120,7 +118,7 @@ class MovieCell: UITableViewCell {
     }
 
     @objc private func favoriteTapped() {
-        delegate?.favoriteTapped(cell: self)
+        favoriteSubject.send(self)
     }
 }
 

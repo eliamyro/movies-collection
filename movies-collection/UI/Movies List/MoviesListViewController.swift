@@ -13,7 +13,7 @@ class MoviesListViewController: UIViewController {
 
     private var searchTask: Task<Void, Error>?
     
-    private var presenter = MoviesListPresenter()
+    private var viewModel: MoviesListVM
 
     // MARK: - Views
 
@@ -48,25 +48,52 @@ class MoviesListViewController: UIViewController {
 
     // MARK: - Lifecycle
 
+    init(viewModel: MoviesListVM) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.setViewDelegate(delegate: self)
         bind()
 
         setupNavigationBar()
         setupTableView()
         setupIndicatorView()
-        fetchPopularMovies()
+
+        viewModel.fetchPopularMovies()
     }
 
     private func bind() {
-        presenter.$apiMovies
+        viewModel.loaderSubject.sink { [weak self] isLoading in
+            guard let self = self else { return }
+            if isLoading {
+                self.activityIndicator.startAnimating()
+            } else {
+                self.activityIndicator.stopAnimating()
+            }
+        }
+        .store(in: &viewModel.cancellables)
+
+        viewModel.$apiMovies
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 self.tableView.reloadData()
             }
-            .store(in: &presenter.cancellables)
+            .store(in: &viewModel.cancellables)
+
+        viewModel.favoriteTappedSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] indexPath in
+                guard let self = self else { return }
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+            .store(in: &viewModel.cancellables)
     }
 
     // MARK: - Setup UI
@@ -98,50 +125,21 @@ class MoviesListViewController: UIViewController {
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-
-    // MARK: - Helper methods
-
-    private func fetchPopularMovies() {
-        presenter.fetchPopularMoviesComb()
-//        presenter.fetchPopularMovies()
-    }
 }
 
 // MARK: - UISearchResultsUpdating
 
 extension MoviesListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        presenter.query = searchController.searchBar.text ?? ""
+        viewModel.query = searchController.searchBar.text ?? ""
 
         searchTask?.cancel()
 
         searchTask = Task { @MainActor in
             try await Task.sleep(nanoseconds: 1_000_000_000)
-            presenter.isScrolling = false
-            presenter.search()
+            viewModel.isScrolling = false
+            viewModel.search()
         }
-    }
-}
-
-extension MoviesListViewController: MoviesListDelegate {
-    func showLoader() {
-        DispatchQueue.main.async {
-            self.activityIndicator.startAnimating()
-        }
-    }
-
-    func hideLoader() {
-        DispatchQueue.main.async {
-            self.activityIndicator.stopAnimating()
-        }
-    }
-
-    func updateMoviesList() {
-        tableView.reloadData()
-    }
-
-    func reloadRows(indexPath: IndexPath) {
-        self.tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }
 
@@ -149,7 +147,7 @@ extension MoviesListViewController: MoviesListDelegate {
 
 extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.apiMovies.count
+        viewModel.apiMovies.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -157,15 +155,19 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
 
-        cell.delegate = self
-        cell.setup(movie: presenter.apiMovies[indexPath.row])
+        cell.cancellable = cell.favoriteSubject.sink { [weak self] favCell in
+            guard let indexPath = tableView.indexPath(for: favCell) else { return }
+            self?.viewModel.updateFavoriteAndReload(indexPath: indexPath)
+        }
+
+        cell.setup(movie: viewModel.apiMovies[indexPath.row])
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         searchController.searchBar.resignFirstResponder()
-        let movie = presenter.apiMovies[indexPath.row]
+        let movie = viewModel.apiMovies[indexPath.row]
         let detailsController = DetailsViewController()
         detailsController.delegate = self
         detailsController.presenter.movie = movie
@@ -179,20 +181,11 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         let height = scrollView.frame.height
 
         if offsetY > (contentHeight - height) {
-            presenter.isScrolling = true
-            presenter.page += 1
-            presenter.search()
-            print("Page \(presenter.page)")
+            viewModel.isScrolling = true
+            viewModel.page += 1
+            viewModel.search()
+            print("Page \(viewModel.page)")
         }
-    }
-}
-
-// MARK: - MovieCellDelegate
-
-extension MoviesListViewController: MovieCellDelegate {
-    func favoriteTapped(cell: MovieCell) {
-        guard let indexPath = tableView.indexPath(for: cell) else { return }
-        presenter.updateFavoriteAndReload(indexPath: indexPath)
     }
 }
 
