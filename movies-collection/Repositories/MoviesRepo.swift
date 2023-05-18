@@ -18,8 +18,8 @@ protocol MoviesRepo {
     func downloadImage(imageUrl: String, completed: @escaping ((UIImage?) -> Void))
 
     func fetchCredits<T: Decodable>(id: Int, mediaType: String) -> AnyPublisher<T, RequestError>
-    func deleteFavoriteMediaFromDb(id: Int, completed: @escaping (Bool) -> Void)
-    func saveFavoriteMediaToDb(media: APIMovie, completed: @escaping (Bool) -> Void)
+    func deleteFavoriteMediaFromDb(id: Int) -> AnyPublisher<Bool, Never>
+    func saveFavoriteMediaToDb(media: APIMovie) -> AnyPublisher<Bool, Never>
 }
 
 class MoviesRepoImp: MoviesRepo {
@@ -52,11 +52,11 @@ class MoviesRepoImp: MoviesRepo {
         httpClient.sendRequest(endpoint: MoviesEndpoint.mediaCredits(id: id, mediaType: mediaType), responseType: T.self)
     }
 
-    func deleteFavoriteMediaFromDb(id: Int, completed: @escaping (Bool) -> Void) {
-        CoreDataManager.shared.deleteFavoriteMedia(id: id, completed: completed)
+    func deleteFavoriteMediaFromDb(id: Int) -> AnyPublisher<Bool, Never> {
+        CoreDataManager.shared.deleteFavoriteMedia(id: id)
     }
 
-    func saveFavoriteMediaToDb(media: APIMovie, completed: @escaping (Bool) -> Void) {
-        CoreDataManager.shared.saveFavoriteMedia(media: media, completed: completed)
+    func saveFavoriteMediaToDb(media: APIMovie) -> AnyPublisher<Bool, Never> {
+        CoreDataManager.shared.saveFavoriteMedia(media: media)
     }
 }

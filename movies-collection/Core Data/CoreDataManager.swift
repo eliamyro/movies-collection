@@ -5,6 +5,7 @@
 //  Created by Elias Myronidis on 15/5/23.
 //
 
+import Combine
 import CoreData
 import Foundation
 
@@ -28,7 +29,7 @@ class CoreDataManager {
 }
 
 extension CoreDataManager {
-    func saveFavoriteMedia(media: APIMovie, completed: @escaping (Bool) -> Void) {
+    func saveFavoriteMedia(media: APIMovie) -> AnyPublisher<Bool, Never> {
         let context = persistentContainer.viewContext
         let favoriteMedia = FavoriteMedia(context: context)
         favoriteMedia.id = Int32(media.id ?? 0)
@@ -39,15 +40,17 @@ extension CoreDataManager {
         if context.hasChanges {
             do {
                 try context.save()
-                completed(true)
+                return Just(true).eraseToAnyPublisher()
             } catch {
                 print(error)
-                completed(false)
+                return Just(false).eraseToAnyPublisher()
             }
         }
+
+        return Just(false).eraseToAnyPublisher()
     }
 
-    func deleteFavoriteMedia(id: Int, completed: @escaping (Bool) -> Void) {
+    func deleteFavoriteMedia(id: Int) -> AnyPublisher<Bool, Never> {
         let context = persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<FavoriteMedia> = FavoriteMedia.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id = %ld", id)
@@ -62,15 +65,17 @@ extension CoreDataManager {
             if context.hasChanges {
                 do {
                     try context.save()
-                    completed(true)
+                    return Just(true).eraseToAnyPublisher()
                 } catch {
                     print(error)
-                    completed(false)
+                    return Just(false).eraseToAnyPublisher()
                 }
             }
+
+            return Just(false).eraseToAnyPublisher()
         } catch {
             print(error)
-            completed(false)
+            return Just(false).eraseToAnyPublisher()
         }
     }
 

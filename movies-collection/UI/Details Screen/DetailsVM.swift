@@ -78,20 +78,25 @@ class DetailsVM {
         if isFavorite {
             // Delete from db
             let id = media.id ?? 0
-            deleteFavoriteMediaFromDbUC.execute(id: id) { [weak self] completed in
-                guard let self = self else { return }
-                if completed {
-                    self.favoriteImageSubject.send(self.favoriteImage())
+            deleteFavoriteMediaFromDbUC.execute(id: id)
+                .sink { [weak self] completed in
+                    guard let self = self else { return }
+                    if completed {
+                        self.favoriteImageSubject.send(self.favoriteImage())
+                    }
                 }
-            }
+                .store(in: &cancellables)
+
         } else {
             // Save to db
-            saveFavoriteMediaToDbUC.execute(media: media) { [weak self] completed in
-                guard let self = self else { return }
-                if completed {
-                    self.favoriteImageSubject.send(self.favoriteImage())
+            saveFavoriteMediaToDbUC.execute(media: media)
+                .sink { [weak self] completed in
+                    guard let self = self else { return }
+                    if completed {
+                        self.favoriteImageSubject.send(self.favoriteImage())
+                    }
                 }
-            }
+                .store(in: &cancellables)
         }
     }
 

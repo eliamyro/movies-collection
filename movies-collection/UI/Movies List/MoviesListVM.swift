@@ -83,21 +83,24 @@ class MoviesListVM {
         if isFavorite {
             // Delete from db
             let id = apiMovies[indexPath.row].id ?? 0
-            deleteFavoriteMediaFromDbUC.execute(id: id) { [weak self] completed in
-                guard let self = self else { return }
-                if completed {
-                    self.favoriteTappedSubject.send(indexPath)
-                }
-            }
+            deleteFavoriteMediaFromDbUC.execute(id: id)
+                .sink { [weak self] completed in
+                    guard let self = self else { return }
+                    if completed {
+                        self.favoriteTappedSubject.send(indexPath)
+                    }
+                }.store(in: &cancellables)
         } else {
             // Save to db
             let media = apiMovies[indexPath.row]
-            saveFavoriteMediaToDbUC.execute(media: media) { [weak self] completed in
-                guard let self = self else { return }
-                if completed {
-                    self.favoriteTappedSubject.send(indexPath)
+            saveFavoriteMediaToDbUC.execute(media: media)
+                .sink { [weak self] completed in
+                    guard let self = self else { return }
+                    if completed {
+                        self.favoriteTappedSubject.send(indexPath)
+                    }
                 }
-            }
+                .store(in: &cancellables)
         }
     }
 }
