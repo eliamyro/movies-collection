@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum RequestError: Error {
+public enum RequestError: Error, Equatable {
     case invalidURL
     case unableToComplete(error: Error)
     case nonHTTPResponse
@@ -39,5 +39,9 @@ public enum RequestError: Error {
         case .networkError(let error):
             return "Failed with network error: \(error)"
         }
+    }
+
+    public static func == (lhs: RequestError, rhs: RequestError) -> Bool {
+        lhs.description == rhs.description
     }
 }

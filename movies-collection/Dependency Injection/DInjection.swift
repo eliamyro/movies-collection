@@ -7,10 +7,20 @@
 
 import Foundation
 
-class DInjection {
-    static let shared = DInjection()
+class DIInitializer {
+    static func setup() {
+        DInjection.shared = DInjection()
+    }
+}
 
-    private init() {}
+class DInjection: DependencyContainer {
+    static var shared = DependencyContainer()
+
+    init(empty: Bool = false) {
+        super.init()
+
+        if !empty { registerDependencies() }
+    }
 
     func registerDependencies() {
         registerSources()
@@ -19,21 +29,21 @@ class DInjection {
     }
 
     private func registerSources() {
-        DependencyContainer.shared.register(HTTPClient.self) { HTTPClientImp() }
+        register(HTTPClient.self) { HTTPClientImp() }
     }
     
     private func registerRepositories() {
-        DependencyContainer.shared.register(MoviesRepo.self) { MoviesRepoImp() }
+        register(MoviesRepo.self) { MoviesRepoImp() }
     }
     
     private func registerUseCases() {
-        DependencyContainer.shared.register(FetchPopularMoviesUC.self) { FetchPopularMoviesUCImp() }
-        DependencyContainer.shared.register(FetchMediaUC.self) { FetchMediaUCImp() }
-        DependencyContainer.shared.register(DownloadImageUC.self) { DownloadImageUCImp() }
-        DependencyContainer.shared.register(FetchDetailsUC.self) { FetchDetailsUCImp() }
-        DependencyContainer.shared.register(FetchVideosUC.self) { FetchVideosUCImp() }
-        DependencyContainer.shared.register(FetchCreditsUC.self) { FetchCreditsUCImp() }
-        DependencyContainer.shared.register(DeleteFavoriteMediaFromDbUC.self) { DeleteFavoriteMediaFromDbUCImp() }
-        DependencyContainer.shared.register(SaveFavoriteMediaToDbUC.self) { SaveFavoriteMediaToDbUCImp() }
+        register(FetchPopularMoviesUC.self) { FetchPopularMoviesUCImp() }
+        register(FetchMediaUC.self) { FetchMediaUCImp() }
+        register(DownloadImageUC.self) { DownloadImageUCImp() }
+        register(FetchDetailsUC.self) { FetchDetailsUCImp() }
+        register(FetchVideosUC.self) { FetchVideosUCImp() }
+        register(FetchCreditsUC.self) { FetchCreditsUCImp() }
+        register(DeleteFavoriteMediaFromDbUC.self) { DeleteFavoriteMediaFromDbUCImp() }
+        register(SaveFavoriteMediaToDbUC.self) { SaveFavoriteMediaToDbUCImp() }
     }
 }

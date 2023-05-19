@@ -14,7 +14,7 @@ struct Injected<T> {
     public var wrappedValue: T { value }
 
     init() {
-        guard let value = DependencyContainer.shared.resolve(T.self) else {
+        guard let value = DInjection.shared.resolve(T.self) else {
             fatalError("No dependency of this type is registered.")
         }
 

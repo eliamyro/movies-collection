@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - APIMoviesResponse
 
-struct APIMoviesResponse: Codable {
+struct APIMoviesResponse: Codable, Equatable {
     var page: Int?
     var results: [APIMovie]?
 }
@@ -41,6 +41,12 @@ struct APIMovie: Codable {
 
     var getMediaType: String {
         mediaType == "tv" ? "tv" : "movie"
+    }
+}
+
+extension APIMoviesResponse {
+    static func == (lhs: APIMoviesResponse, rhs: APIMoviesResponse) -> Bool {
+        lhs.page == rhs.page && lhs.results?.count ?? 0 == rhs.results?.count ?? 0
     }
 }
 

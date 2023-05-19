@@ -8,14 +8,14 @@
 import Foundation
 
 class DependencyContainer {
-    static let shared = DependencyContainer()
-    private init() {}
+    public init() {}
 
     private var factories: [String: () -> Any] = [:]
 
-    func register<T>(_ type: T.Type, _ factory: @escaping () -> T) {
+    @discardableResult func register<T>(_ type: T.Type, _ factory: @escaping () -> T) -> Self {
         print("Type: \(type.self)")
         factories[String(describing: type.self)] = factory
+        return self
     }
 
     func resolve<T>(_ type: T.Type) -> T? {
@@ -28,5 +28,4 @@ class DependencyContainer {
 
         return factory
     }
-
 }

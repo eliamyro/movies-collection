@@ -9,15 +9,12 @@ import Combine
 import UIKit
 
 protocol MoviesRepo {
-    func fetchPopularMovies<T: Decodable>(page: Int) -> AnyPublisher<T, RequestError>
-    func fetchMedia<T: Decodable>(query: String, page: Int) -> AnyPublisher<T, RequestError>
-    func fetchDetails<T: Decodable>(id: Int, mediaType: String) -> AnyPublisher<T, RequestError>
-    func fetchVideos<T: Decodable>(id: Int, mediaType: String) -> AnyPublisher<T, RequestError>
-
+    func fetchPopularMovies(page: Int) -> AnyPublisher<APIMoviesResponse, RequestError>
+    func fetchMedia(query: String, page: Int) -> AnyPublisher<APIMoviesResponse, RequestError>
+    func fetchDetails(id: Int, mediaType: String) -> AnyPublisher<APIDetails, RequestError>
+    func fetchVideos(id: Int, mediaType: String) -> AnyPublisher<APIVideosResponse, RequestError>
     func downloadImage(imageUrl: String) -> AnyPublisher<UIImage?, Never>
-    func downloadImage(imageUrl: String, completed: @escaping ((UIImage?) -> Void))
-
-    func fetchCredits<T: Decodable>(id: Int, mediaType: String) -> AnyPublisher<T, RequestError>
+    func fetchCredits(id: Int, mediaType: String) -> AnyPublisher<APICreditsResponse, RequestError>
     func deleteFavoriteMediaFromDb(id: Int) -> AnyPublisher<Bool, Never>
     func saveFavoriteMediaToDb(media: APIMovie) -> AnyPublisher<Bool, Never>
 }
@@ -25,31 +22,28 @@ protocol MoviesRepo {
 class MoviesRepoImp: MoviesRepo {
     @Injected var httpClient: HTTPClient
 
-    func fetchPopularMovies<T: Decodable>(page: Int) -> AnyPublisher<T, RequestError> {
-        httpClient.sendRequest(endpoint: MoviesEndpoint.popularMovies(page: page), responseType: T.self)
+    func fetchPopularMovies(page: Int) -> AnyPublisher<APIMoviesResponse, RequestError> {
+        httpClient.sendRequest(endpoint: MoviesEndpoint.popularMovies(page: page), responseType: APIMoviesResponse.self)
     }
  
-    func fetchMedia<T: Decodable>(query: String, page: Int) -> AnyPublisher<T, RequestError> {
-        httpClient.sendRequest(endpoint: MoviesEndpoint.multiSearch(query: query, page: page), responseType: T.self)
+    func fetchMedia(query: String, page: Int) -> AnyPublisher<APIMoviesResponse, RequestError> {
+        httpClient.sendRequest(endpoint: MoviesEndpoint.multiSearch(query: query, page: page), responseType: APIMoviesResponse.self)
     }
 
-    func fetchDetails<T: Decodable>(id: Int, mediaType: String) -> AnyPublisher<T, RequestError> {
-        httpClient.sendRequest(endpoint: MoviesEndpoint.mediaDetails(id: id, mediaType: mediaType), responseType: T.self)
+    func fetchDetails(id: Int, mediaType: String) -> AnyPublisher<APIDetails, RequestError> {
+        httpClient.sendRequest(endpoint: MoviesEndpoint.mediaDetails(id: id, mediaType: mediaType), responseType: APIDetails.self)
     }
 
-    func fetchVideos<T: Decodable>(id: Int, mediaType: String) -> AnyPublisher<T, RequestError> {
-        httpClient.sendRequest(endpoint: MoviesEndpoint.mediaVideos(id: id, mediaType: mediaType), responseType: T.self)
+    func fetchVideos(id: Int, mediaType: String) -> AnyPublisher<APIVideosResponse, RequestError> {
+        httpClient.sendRequest(endpoint: MoviesEndpoint.mediaVideos(id: id, mediaType: mediaType), responseType: APIVideosResponse.self)
     }
 
     func downloadImage(imageUrl: String) -> AnyPublisher<UIImage?, Never> {
         httpClient.downloadImage(endpoint: MoviesEndpoint.downloadImage(imageUrl: imageUrl))
     }
-    func downloadImage(imageUrl: String, completed: @escaping ((UIImage?) -> Void)) {
-        httpClient.downloadImage(endpoint: MoviesEndpoint.downloadImage(imageUrl: imageUrl), completed: completed)
-    }
 
-    func fetchCredits<T: Decodable>(id: Int, mediaType: String) -> AnyPublisher<T, RequestError> {
-        httpClient.sendRequest(endpoint: MoviesEndpoint.mediaCredits(id: id, mediaType: mediaType), responseType: T.self)
+    func fetchCredits(id: Int, mediaType: String) -> AnyPublisher<APICreditsResponse, RequestError> {
+        httpClient.sendRequest(endpoint: MoviesEndpoint.mediaCredits(id: id, mediaType: mediaType), responseType: APICreditsResponse.self)
     }
 
     func deleteFavoriteMediaFromDb(id: Int) -> AnyPublisher<Bool, Never> {
