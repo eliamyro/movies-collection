@@ -9,6 +9,7 @@ import Combine
 import XCTest
 @testable import movies_collection
 
+// swiftlint:disable identifier_name
 final class FetchPopularMoviesUCTests: XCTestCase {
 
     private func arrange() -> (uc: FetchPopularMoviesUC,
@@ -21,39 +22,29 @@ final class FetchPopularMoviesUCTests: XCTestCase {
     }
 
     func testFetchMoviesSuccess() {
-        let arr = arrange()
+        let r = arrange()
 
-        var movie = APIMovie()
-        movie.id = 123
-        movie.title = "Hello there"
-
-        var movieResponse = APIMoviesResponse()
-        movieResponse.results = [movie]
-
-        var movieResponse2 = APIMoviesResponse()
-        movieResponse2.results = []
-
-        arr.repoMock.stub.fetchPopularMovies = {
-            Just(movieResponse)
+        r.repoMock.stub.fetchPopularMovies = {
+            Just(APIMoviesResponse.fakeAPIMovieResponse)
                 .setFailureType(to: RequestError.self)
                 .eraseToAnyPublisher()
         }
 
-        let actualResult = arr.uc.execute(page: 1)
+        let actualResult = r.uc.execute(page: 1)
 
-        waitForValue(of: actualResult, value: movieResponse)
+        waitForValue(of: actualResult, value: APIMoviesResponse.fakeAPIMovieResponse)
     }
 
     func testFetchMoviesFailed() {
-        let arr = arrange()
+        let r = arrange()
 
         let exp = expectation(description: "Fails")
 
-        arr.repoMock.stub.fetchPopularMovies = {
+        r.repoMock.stub.fetchPopularMovies = {
             Fail(error: RequestError.invalidResponse).eraseToAnyPublisher()
         }
 
-        _ = arr.uc.execute(page: 1).sink { completion in
+        _ = r.uc.execute(page: 1).sink { completion in
             guard case .failure(let error) = completion else { return }
             XCTAssertEqual(error, RequestError.invalidResponse)
             exp.fulfill()

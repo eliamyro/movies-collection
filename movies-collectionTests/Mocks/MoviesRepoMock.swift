@@ -17,17 +17,18 @@ class MoviesRepoMock: MoviesRepo {
 
     public class Stub {
         @Unwrapable public var fetchPopularMovies: (() -> AnyPublisher<APIMoviesResponse, RequestError>)?
+        @Unwrapable public var fetchMedia: (() -> AnyPublisher<APIMoviesResponse, RequestError>)?
     }
 
     func fetchPopularMovies(page: Int) -> AnyPublisher<APIMoviesResponse, RequestError> {
         return stub.$fetchPopularMovies.safeValue()()
     }
 
-    // TODO: Add more tests
-
     func fetchMedia(query: String, page: Int) -> AnyPublisher<APIMoviesResponse, RequestError> {
-        return Empty().eraseToAnyPublisher()
+        return stub.$fetchMedia.safeValue()()
     }
+
+    // TODO: Add more tests
 
     func fetchDetails(id: Int, mediaType: String) -> AnyPublisher<APIDetails, RequestError> {
         return Empty().eraseToAnyPublisher()

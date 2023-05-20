@@ -31,11 +31,11 @@ class DInjection: DependencyContainer {
     private func registerSources() {
         register(HTTPClient.self) { HTTPClientImp() }
     }
-    
+
     private func registerRepositories() {
         register(MoviesRepo.self) { MoviesRepoImp() }
     }
-    
+
     private func registerUseCases() {
         register(FetchPopularMoviesUC.self) { FetchPopularMoviesUCImp() }
         register(FetchMediaUC.self) { FetchMediaUCImp() }

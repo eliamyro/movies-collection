@@ -16,7 +16,7 @@ struct APIMoviesResponse: Codable, Equatable {
 
 // MARK: - APIMovie
 
-struct APIMovie: Codable {
+struct APIMovie: Codable, Equatable {
     var id: Int?
     var title: String?  // Movie title
     var name: String?   // Tv show name
@@ -48,10 +48,14 @@ extension APIMoviesResponse {
     static func == (lhs: APIMoviesResponse, rhs: APIMoviesResponse) -> Bool {
         lhs.page == rhs.page && lhs.results?.count ?? 0 == rhs.results?.count ?? 0
     }
+
+    static var fakeAPIMovieResponse = APIMoviesResponse(page: 1, results: [APIMovie(id: 123, title: "Dummy title", mediaType: "movie")])
 }
 
 extension APIMovie {
     var isFavorite: Bool {
         return CoreDataManager.shared.isFavorite(id: self.id ?? 0)
     }
+
+    static var fakeAPIMovie = APIMovie(id: 123, title: "Dummy title", mediaType: "movie")
 }
